@@ -1,7 +1,7 @@
 
 import { Link } from "@nextui-org/link";
 import { Snippet } from "@nextui-org/snippet";
-
+import { ethers } from "ethers";
 import { Code } from "@nextui-org/code"
 import { button as buttonStyles } from "@nextui-org/theme";
 import { siteConfig } from "@/config/site";
@@ -9,7 +9,38 @@ import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
 import {Image} from "@nextui-org/react";
 
+import {
+	usePrepareContractWrite,
+	useContractWrite,
+	useWaitForTransaction,
+  } from "wagmi";
+  
+	
+//https://wagmi.sh/examples/contract-write
 export default function Home() {
+	const {
+		config,
+		error: prepareError,
+		isError: isPrepareError,
+	  } = usePrepareContractWrite({
+		address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+		abi: [
+		  {
+			name: 'mint',
+			type: 'function',
+			stateMutability: 'nonpayable',
+			inputs: [],
+			outputs: [],
+		  },
+		],
+		functionName: 'mint',
+	  })
+	  const { data, error, isError, write } = useContractWrite(config)
+	 
+	  const { isLoading, isSuccess } = useWaitForTransaction({
+		hash: data?.hash,
+	  })
+	  
 	return (
 		<section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
 			
@@ -28,7 +59,7 @@ export default function Home() {
 				Meet your new digital friend!
 				</h2>
 			</div>
-			<button type="button" className="nes-btn w-52" >
+			<button type="button"  onClick={} className="nes-btn w-52" >
 				Mint A Friend
 </button>
 			<div className="flex gap-3">
