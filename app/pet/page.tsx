@@ -33,6 +33,8 @@ import {
 	useWaitForTransaction,
 	useAccount,
 	useConnect,
+  useNetwork, 
+	useSwitchNetwork
   } from "wagmi";
   import { readContracts , writeContract } from '@wagmi/core'
   const nftAddress= '0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241';
@@ -41,14 +43,18 @@ import {
 
 
 
-export default function AboutPage() {
+export default function PetPage() {
   const [petData, setPetData] = React.useState<any>(null)
   const [itemData, setItemData] = React.useState<any>(null)
+  const [currentChain, setCurrentChain] = React.useState<any>(null)
   const [selectedPet, setSelectedPet] = React.useState<any>(null)
   const [selectedItem, setSelectedItem] = React.useState<any>(null)
   const [petName, setPetName] = React.useState<any>(null)
   const { address, connector, isConnected } = useAccount()
   const { connect, connectors , pendingConnector } = useConnect()
+  const { chain  } = useNetwork()
+	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
+		useSwitchNetwork()
   const {isOpen : isOpenPetName , onOpen : onOpenPetName, onOpenChange : onOpenChangePetName , onClose : onCloseChangePetName} = useDisclosure();
   const debouncedPetName = useDebounce(petName, 500)
   const debouncedSelectedPet = useDebounce(selectedPet, 500)
@@ -99,6 +105,13 @@ export default function AboutPage() {
 
   React.useEffect(() => {
     async function fetchMyAPI() {
+
+      const pet = localStorage.getItem('pet');
+      console.log(pet);
+      if (pet) {
+        setSelectedPet(pet);
+      }
+
       let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
       response = await response.json()
       let petArr : any = [];
@@ -126,7 +139,6 @@ export default function AboutPage() {
         setSelectedPet(petArr[0].value)
       }
       setPetData(petArr);
-
       let items : any = [0,1];
       let itemArr : any = [];
       for (const element of items) {
@@ -154,10 +166,19 @@ export default function AboutPage() {
     }
 
     fetchMyAPI()
+
+    if(chain?.id == 919){
+      fetchMyAPI()
+    }
+ 
+
   }, [])
 
 	return (
-		<>
+    
+    chain?.id == 919 ? (
+
+<>
 		<div className="grid grid-cols-6 gap-3 pt-5">
 
 
@@ -287,5 +308,20 @@ export default function AboutPage() {
  </div>
 	
 </>
+        
+      ) : (
+      
+        <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 ">
+  <button
+        key={919}
+        onClick={() => switchNetwork?.(919)}
+    className="nes-btn w-52 mt-48"
+      >
+       switch to Mode Testnet
+        {loadingSwingNetwork && pendingChainId === 919 && ' (switching)'}
+      </button>
+        </section>
+    )
+		
 	);
 }

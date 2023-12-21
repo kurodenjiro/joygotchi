@@ -16,6 +16,8 @@ import {
 	useWaitForTransaction,
 	useAccount,
 	useConnect,
+	useNetwork, 
+	useSwitchNetwork
   } from "wagmi";
   
 const ADDRESS= '0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241';
@@ -67,11 +69,17 @@ const { data: allowance, refetch } = useContractRead({
 	  })
 	  
 
-
+	  const { chain  } = useNetwork()
+	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
+		useSwitchNetwork()
 
 	return (
 		<section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
 			
+			
+		
+ 
+      <div>{errorSwitchNetwork && errorSwitchNetwork.message}</div>
 			<div className="inline-block max-w-lg text-center justify-center">
 				<h1 className={title()}>Joy&nbsp;</h1>
 				<h1 className={title({ color: "violet" })}>Gotchi&nbsp;</h1>
@@ -87,16 +95,34 @@ const { data: allowance, refetch } = useContractRead({
 				Meet your new digital friend!
 				</h2>
 			</div>
-			{(allowance == BigInt(0)) ? (
-       <button type="button"   onClick={approveAsync} className="nes-btn w-52" >
-	   Approval
-   </button>
-      ):(
-		<button type="button"  disabled={!mint || isLoading} onClick={mint} className="nes-btn w-52" >
-		Mint A Friend
-	</button>
-		
-	  )}
+
+{chain?.id == 919 ? (
+(allowance == BigInt(0)) ? (
+	<button type="button"   onClick={approveAsync} className="nes-btn w-52" >
+	Approval
+</button>
+   ):(
+	 <button type="button"  disabled={!mint || isLoading} onClick={mint} className="nes-btn w-52" >
+	 Mint A Friend
+ </button>
+	 
+   )
+
+) : (
+<button
+          key={919}
+          onClick={() => switchNetwork?.(919)}
+		  className="nes-btn w-52"
+        >
+         switch to Mode Testnet
+          {loadingSwingNetwork && pendingChainId === 919 && ' (switching)'}
+        </button>
+)
+        
+}
+
+
+			
 			
 			
 {isSuccess && (
