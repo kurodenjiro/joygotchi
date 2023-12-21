@@ -35,7 +35,6 @@ const { data: allowance, refetch } = useContractRead({
     args: [address, ADDRESS],
   });
 
-  console.log(allowance);
   const { config : configAllowance } = usePrepareContractWrite({
 	address: tokenAddress,
 	abi: tokenAbi,
@@ -88,7 +87,7 @@ const { data: allowance, refetch } = useContractRead({
 				Meet your new digital friend!
 				</h2>
 			</div>
-			{(allowance == 0) ? (
+			{(allowance == BigInt(0)) ? (
        <button type="button"   onClick={approveAsync} className="nes-btn w-52" >
 	   Approval
    </button>
