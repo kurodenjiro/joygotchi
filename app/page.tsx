@@ -1,10 +1,5 @@
 'use client'
-import { Link } from "@nextui-org/link";
-import { Snippet } from "@nextui-org/snippet";
-import { ethers } from "ethers";
-import { Code } from "@nextui-org/code"
-import { button as buttonStyles } from "@nextui-org/theme";
-import { siteConfig } from "@/config/site";
+import React from "react";
 import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
 import {Image} from "@nextui-org/react";
@@ -70,14 +65,28 @@ const { data: allowance, refetch } = useContractRead({
 	  
 
 	  const { chain  } = useNetwork()
+	  const [isClient, setIsClient] = React.useState(false)
 	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
-		useSwitchNetwork()
-
+		useSwitchNetwork({
+			onMutate(args) {
+				console.log('Mutate', args)
+			  },
+			onSettled(data, error) {
+				console.log('Settled', { data, error })
+				setIsClient(true);
+			},
+			onSuccess(data) {
+				console.log('sucess', { data })
+				setIsClient(true);
+			  }
+		  })
+		React.useEffect(() => {
+			if(chain?.id == 919){
+			setIsClient(true);
+			}
+		},[])
 	return (
 		<section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-			
-			
-		
  
       <div>{errorSwitchNetwork && errorSwitchNetwork.message}</div>
 			<div className="inline-block max-w-lg text-center justify-center">
@@ -96,7 +105,7 @@ const { data: allowance, refetch } = useContractRead({
 				</h2>
 			</div>
 
-{chain?.id == 919 ? (
+{isClient ? (
 (allowance == BigInt(0)) ? (
 	<button type="button"   onClick={approveAsync} className="nes-btn w-52" >
 	Approval
@@ -109,14 +118,17 @@ const { data: allowance, refetch } = useContractRead({
    )
 
 ) : (
-<button
+	<>
+	<button
           key={919}
           onClick={() => switchNetwork?.(919)}
 		  className="nes-btn w-52"
         >
-         switch to Mode Testnet
-          {loadingSwingNetwork && pendingChainId === 919 && ' (switching)'}
+       switch to Mode Testnet 
+         {loadingSwingNetwork && pendingChainId === 919 && '(switching)'} 
         </button>
+		<div><span className="text-red-400">{errorSwitchNetwork && errorSwitchNetwork.message}</span></div>
+		</>
 )
         
 }
