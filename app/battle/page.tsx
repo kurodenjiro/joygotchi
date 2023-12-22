@@ -19,7 +19,7 @@ import {
 export default function Battle() {
 
 	const [listBattle, setListBattle] = useState<any>(null);
-	const { address, } = useAccount();
+	const { address } = useAccount();
 	const [ownPet, setOwnPet] = useState<any>(null)
 	const [ownPetId, setOwnPetId] = useState<any>(null)
 	const [selectedPet, setSelectedPet] = useState<any>(null)
@@ -29,13 +29,13 @@ export default function Battle() {
 	const unwatch = watchAccount((account) => {
 		async function fetchMyAPI() {
 	
-		  let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
-		  response = await response.json()
+		//   let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+		//   response = await response.json()
 
-		  setOwnPet(response.items[0].id)
-		  const list = activity;
-		  list.push(`You have changned Pet #${response.items[0].id} `)
-		  setActivity(list)
+		//   setOwnPet(response.items[0].id)
+		//   const list = activity;
+		//   list.push(`You have changned Pet #${response.items[0].id} `)
+		//   setActivity(list)
 	   
 		}
 		fetchMyAPI()
@@ -60,6 +60,49 @@ export default function Battle() {
 			  const list = activity;
 			  list.push(`You Pet #${debouncedOwnPetId} attacked #${debouncedSelectedPet}`)
 			  setActivity(list)
+			  async function fetchMyAPI() {
+				let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+				response = await response.json()
+				let petArr : any = [];
+				if(response.items){
+				  for (const element of response.items) {
+					const Info : any = await readContracts({
+					  contracts: [
+						{
+						  address: nftAddress,
+						  abi: nftAbi,
+						  functionName: 'getPetInfo',
+						  args: [element.id],
+						}
+					  ],
+					})
+					if(element.owner.hash !== address){
+					  Info[0].result.push(element.id);
+					  petArr.push(Info[0].result)
+					}
+				  }
+				}
+				setListBattle(petArr)
+				
+				const pet = localStorage.getItem('pet');
+				if (pet) {
+					const Info : any = await readContracts({
+						contracts: [
+						  {
+							address: nftAddress,
+							abi: nftAbi,
+							functionName: 'getPetInfo',
+							args: [BigInt(pet)],
+						  }
+						],
+					  })
+					  Info[0].result.push(BigInt(pet));
+					  setOwnPetId(pet);
+					  setOwnPet(Info[0].result);
+			  }
+		  
+			  }
+			  fetchMyAPI()
 			},
 		  })
 const onAttack = ( petId : any )=> {
@@ -90,6 +133,49 @@ const onAttack = ( petId : any )=> {
 			  console.log('success data', data)
 			  const list = activity;
 			  list.push(`You Pet ${debouncedOwnPetId} killed ${debouncedSelectedPet}`)
+			  async function fetchMyAPI() {
+				let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+				response = await response.json()
+				let petArr : any = [];
+				if(response.items){
+				  for (const element of response.items) {
+					const Info : any = await readContracts({
+					  contracts: [
+						{
+						  address: nftAddress,
+						  abi: nftAbi,
+						  functionName: 'getPetInfo',
+						  args: [element.id],
+						}
+					  ],
+					})
+					if(element.owner.hash !== address){
+					  Info[0].result.push(element.id);
+					  petArr.push(Info[0].result)
+					}
+				  }
+				}
+				setListBattle(petArr)
+				
+				const pet = localStorage.getItem('pet');
+				if (pet) {
+					const Info : any = await readContracts({
+						contracts: [
+						  {
+							address: nftAddress,
+							abi: nftAbi,
+							functionName: 'getPetInfo',
+							args: [BigInt(pet)],
+						  }
+						],
+					  })
+					  Info[0].result.push(BigInt(pet));
+					  setOwnPetId(pet);
+					  setOwnPet(Info[0].result);
+			  }
+		  
+			  }
+			  fetchMyAPI()
 			  setActivity(list)
 			},
 		  })
