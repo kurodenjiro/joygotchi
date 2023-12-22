@@ -456,7 +456,7 @@ export default function PetPage() {
     width={35}
 src="/gotchi/Icon/skull2.png"
 /></div>
-<div className="col-span-2 "><span className="text-sm">Healthy</span></div>
+<div className="col-span-2 "><span className="text-sm">TOD</span></div>
 
 <div className="row-span-1 col-span-2 "><span className="font-bold text-lg"> <CountDownTimer seconds={countDownseconds} /></span></div>
 </div>
