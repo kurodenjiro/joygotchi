@@ -1,40 +1,51 @@
 "use client"
 import { title } from "@/components/primitives";
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import {
 	usePrepareContractWrite,
 	useContractWrite,
-	useContractRead,
 	useWaitForTransaction,
 	useAccount,
-	useConnect,
-	useNetwork, 
-	useSwitchNetwork
   } from "wagmi";
-  import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, getKeyValue,Button} from "@nextui-org/react";
-  import { readContracts , writeContract } from '@wagmi/core'
+  import {Table, TableHeader, TableColumn,Link, TableBody, TableRow, TableCell, User, Chip, Tooltip, getKeyValue,Button} from "@nextui-org/react";
+  import { readContracts , watchAccount  } from '@wagmi/core'
+  import {Card, CardBody , CardHeader , Divider} from "@nextui-org/react";
   import { nftAbi , tokenAbi } from '../../abi';
   import { useDebounce } from './useDebounce'
-
   import {Image} from "@nextui-org/react";
   const nftAddress= '0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241';
-  const MAX_ALLOWANCE = BigInt('20000000000000000000000')
   const tokenAddress = '0xf28194a06800FEf63C312E5D41967Ca85A5De121'
-  
   //https://github.com/ChangoMan/nextjs-ethereum-starter/blob/main/frontend/pages/index.tsx
-export default function battle() {
+export default function Battle() {
 
-	const [listBattle, setListBattle] = React.useState<any>(null);
-	const { address, connector, isConnected } = useAccount();
-	const [ownPet, setOwnPet] = React.useState<any>(null)
-	const [selectedPet, setSelectedPet] = React.useState<any>(null)
+	const [listBattle, setListBattle] = useState<any>(null);
+	const { address, } = useAccount();
+	const [ownPet, setOwnPet] = useState<any>(null)
+	const [ownPetId, setOwnPetId] = useState<any>(null)
+	const [selectedPet, setSelectedPet] = useState<any>(null)
+	const [activity, setActivity] = useState<any>([])
 	const debouncedSelectedPet = useDebounce(selectedPet, 500)
-	const debouncedOwnPet = useDebounce(ownPet, 500)
+	const debouncedOwnPetId = useDebounce(ownPetId, 500)
+	const unwatch = watchAccount((account) => {
+		async function fetchMyAPI() {
+	
+		  let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+		  response = await response.json()
+
+		  setOwnPet(response.items[0].id)
+		  const list = activity;
+		  list.push(`You have changned Pet #${response.items[0].id} `)
+		  setActivity(list)
+	   
+		}
+		fetchMyAPI()
+	})
+	
 	const { config : configAttack } = usePrepareContractWrite({
 		address: nftAddress,
 		abi: nftAbi,
 		functionName: "attack",
-		args: [debouncedOwnPet ? ownPet[9] : "0", debouncedSelectedPet],
+		args: [debouncedOwnPetId , debouncedSelectedPet],
 		});
 	  
 		const {
@@ -42,9 +53,18 @@ export default function battle() {
 		  writeAsync: setAttackAsync,
 		  error:errorAttack,
 		} = useContractWrite(configAttack);
-
+		const { isLoading : isLoadingAttack} = useWaitForTransaction({
+			hash: attackData?.hash,
+			onSuccess(data) {
+			  console.log('success data', data)
+			  const list = activity;
+			  list.push(`You Pet #${debouncedOwnPetId} attacked #${debouncedSelectedPet}`)
+			  setActivity(list)
+			},
+		  })
 const onAttack = ( petId : any )=> {
-      setSelectedPet(parseInt(petId));
+	console.log('attack',petId)
+      setSelectedPet(petId);
 	  setAttackAsync?.();
     };
 
@@ -53,8 +73,8 @@ const onAttack = ( petId : any )=> {
 	const { config : configKill } = usePrepareContractWrite({
 		address: nftAddress,
 		abi: nftAbi,
-		functionName: "attack",
-		args: [ownPet ? ownPet[9] : "0", debouncedSelectedPet],
+		functionName: "kill",
+		args: [debouncedSelectedPet,debouncedOwnPetId],
 		});
 	  
 		const {
@@ -63,13 +83,25 @@ const onAttack = ( petId : any )=> {
 		  error:errorKill,
 		} = useContractWrite(configKill);
 
+
+		const { isLoading : isLoadingKill} = useWaitForTransaction({
+			hash: killData?.hash,
+			onSuccess(data) {
+			  console.log('success data', data)
+			  const list = activity;
+			  list.push(`You Pet ${debouncedOwnPetId} killed ${debouncedSelectedPet}`)
+			  setActivity(list)
+			},
+		  })
 const onKill = ( petId : any )=> {
-      setSelectedPet(parseInt(petId));
+	console.log("kill",petId)
+      setSelectedPet(petId);
 	  setKillAsync?.();
     };
 
 
-	React.useEffect(() => {
+
+	useEffect(() => {
 		async function fetchMyAPI() {
 		  let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
 		  response = await response.json()
@@ -106,18 +138,18 @@ const onKill = ( petId : any )=> {
 					}
 				  ],
 				})
-				console.log("pet",Info[0].result)
 				Info[0].result.push(BigInt(pet));
+				setOwnPetId(pet);
 				setOwnPet(Info[0].result);
 		}
 	
 		}
 		fetchMyAPI()
-		console.log('a');
 	  }, [])
 	return (
+		<>
 		<div>
-<Table aria-label="Example static collection table " className="pt-3">
+<Table aria-label="Example static collection table h-44" className="pt-3">
       <TableHeader>
         <TableColumn>Info</TableColumn>
         <TableColumn>Score</TableColumn>
@@ -151,7 +183,7 @@ const onKill = ( petId : any )=> {
 	   </div></TableCell>
 	   <TableCell>
 		{
-		 ownPet &&	ownPet[3] <  pet[3]  && ownPet[3] !== 4 && pet[3] !==4 && (
+		 ownPet &&	ownPet[3] <  pet[3]  && pet[1] !== 4  && (
 <Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onAttack(pet[9])}>
 	   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 				 <g>
@@ -163,7 +195,7 @@ const onKill = ( petId : any )=> {
 			)
 		}
 		{
-		  pet[3] == 4 && (
+		  pet[1] == 4  &&(
 <Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onKill(pet[9])}>
 <Image
     radius={"none"}
@@ -179,6 +211,29 @@ src="/gotchi/Icon/skull2.png"
        
       </TableBody>
     </Table>
+	
+	
 		</div>
+		<br/>
+		<Card >
+		<CardHeader className="flex gap-3">
+			<div className="flex flex-col">
+			  <p className="text-md">Activity</p>
+			  <p className="text-small text-default-500">list</p>
+			</div>
+		  </CardHeader>
+		  <Divider/>
+	  <CardBody>
+		{activity.length > 0 && activity.map((item:string,index:number) => (
+			<p  key={index}>{item}</p> 
+		) )}
+		{activity.length == 0 && (<p>No activity</p>)}
+			
+	  </CardBody>
+	</Card>
+	<br/>
+	<br/>
+	<br/>
+	</>
 		)
 }

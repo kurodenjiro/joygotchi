@@ -22,14 +22,12 @@ const tokenAddress = '0xf28194a06800FEf63C312E5D41967Ca85A5De121'
 export default function Home() {
 //check allowrance
 const { address, connector, isConnected } = useAccount()
-const { connect, connectors , pendingConnector } =
-useConnect()
-
+const { connect, connectors , pendingConnector } = useConnect()
 const { data: allowance, refetch } = useContractRead({
     address: tokenAddress,
     abi: tokenAbi,
     functionName: "allowance",
-    args: [address, ADDRESS],
+    args: [`0x${address ? address.slice(2) : ''}`, ADDRESS],
   });
 
   const { config : configAllowance } = usePrepareContractWrite({

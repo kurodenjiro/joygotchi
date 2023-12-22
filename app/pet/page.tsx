@@ -36,7 +36,7 @@ import {
   useNetwork, 
 	useSwitchNetwork
   } from "wagmi";
-import { readContracts  } from '@wagmi/core'
+import { readContracts  , watchAccount} from '@wagmi/core'
 import CountDownTimer from "./CountDownTimer";
 
   const nftAddress= '0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241';
@@ -59,6 +59,91 @@ export default function PetPage() {
   const { connect, connectors , pendingConnector } = useConnect()
   const [countDownseconds, setCountDownseconds] = React.useState(0);
   const { chain  } = useNetwork()
+  const unwatch = watchAccount((account) => {
+    async function fetchMyAPI() {
+
+      let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+      response = await response.json()
+      let petArr : any = [];
+      console.log(response.items)
+      if(response.items){
+        for (const element of response.items) {
+          const Info : any = await readContracts({
+            contracts: [
+              {
+                address: nftAddress,
+                abi: nftAbi,
+                functionName: 'getPetInfo',
+                args: [element.id],
+              }
+            ],
+          })
+          if(element.owner.hash == address){
+            petArr.push({
+              value:element.id,
+              label:Info[0].result[0]
+            })
+          }
+        }
+      }
+      console.log("check",petArr)
+      
+      if(petArr[0]){
+        const pet = localStorage.getItem('pet');
+        let petId : any  = null ;
+      if (pet) {
+        setSelectedPet(pet);
+        petId = BigInt(pet)
+    
+      }else{
+        localStorage.setItem('pet',petArr[0].value);
+        petId = petArr[0].value;
+        setSelectedPet(petArr[0].value)
+      }
+      const Info : any = await readContracts({
+        contracts: [
+          {
+            address: nftAddress,
+            abi: nftAbi,
+            functionName: 'getPetInfo',
+            args: [petId],
+          }
+        ],
+      })
+      setOwnPet(Info[0].result)
+      const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
+      setCountDownseconds(seconds)
+    
+      
+    }
+    setPetData(petArr)
+      let items : any = [0,1];
+      let itemArr : any = [];
+      for (const element of items) {
+        const Info : any = await readContracts({
+          contracts: [
+            {
+              address: nftAddress,
+              abi: nftAbi,
+              functionName: 'getItemInfo',
+              args: [element],
+            }
+          ],
+        })
+        itemArr.push({
+          id:element,
+          name:Info[0].result[0],
+          price:Info[0].result[1],
+          points:Info[0].result[2],
+          timeExtension:Info[0].result[3],
+        })
+      }
+      setItemData(itemArr);
+      
+    }
+
+   // fetchMyAPI()
+	})
 	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
 		useSwitchNetwork({
 			onMutate(args) {
