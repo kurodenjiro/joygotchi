@@ -36,7 +36,9 @@ import {
   useNetwork, 
 	useSwitchNetwork
   } from "wagmi";
-  import { readContracts  } from '@wagmi/core'
+import { readContracts  } from '@wagmi/core'
+import CountDownTimer from "./CountDownTimer";
+
   const nftAddress= '0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241';
   const MAX_ALLOWANCE = BigInt('20000000000000000000000')
   const tokenAddress = '0xf28194a06800FEf63C312E5D41967Ca85A5De121'
@@ -50,9 +52,12 @@ export default function PetPage() {
   const [selectedPet, setSelectedPet] = React.useState<any>(null)
   const [ownPet, setOwnPet] = React.useState<any>(null)
   const [selectedItem, setSelectedItem] = React.useState<any>(null)
+  const [balloons, setBalloons] = React.useState<any>(null)
   const [petName, setPetName] = React.useState<any>(null)
+  const [intervalArr, setIntervalArr] = React.useState<any>(null)
   const { address, connector, isConnected } = useAccount()
   const { connect, connectors , pendingConnector } = useConnect()
+  const [countDownseconds, setCountDownseconds] = React.useState(0);
   const { chain  } = useNetwork()
 	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
 		useSwitchNetwork({
@@ -64,7 +69,6 @@ export default function PetPage() {
 				setIsClient(true);
 			},
 			onSuccess(data) {
-				console.log('sucess', { data })
         async function fetchMyAPI() {
           let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
           response = await response.json()
@@ -91,40 +95,34 @@ export default function PetPage() {
             }
           }
           console.log("check",petArr)
+          
           if(petArr[0]){
             const pet = localStorage.getItem('pet');
-          
+            let petId : any  = null ;
           if (pet) {
             setSelectedPet(pet);
-            const Info : any = await readContracts({
-              contracts: [
-                {
-                  address: nftAddress,
-                  abi: nftAbi,
-                  functionName: 'getPetInfo',
-                  args: [BigInt(pet)],
-                }
-              ],
-            })
-            setOwnPet(Info[0].result)
-            
+            petId = BigInt(pet)
+        
           }else{
+            localStorage.setItem('pet',petArr[0].value);
+            petId = petArr[0].value;
             setSelectedPet(petArr[0].value)
-            const Info : any = await readContracts({
-              contracts: [
-                {
-                  address: nftAddress,
-                  abi: nftAbi,
-                  functionName: 'getPetInfo',
-                  args: [petArr[0].value],
-                }
-              ],
-            })
-            setOwnPet(Info[0].result)
           }
-
-   
+          const Info : any = await readContracts({
+            contracts: [
+              {
+                address: nftAddress,
+                abi: nftAbi,
+                functionName: 'getPetInfo',
+                args: [petId],
+              }
+            ],
+          })
+          setOwnPet(Info[0].result)
+          const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
+          setCountDownseconds(seconds)
         }
+        setPetData(petArr)
           let items : any = [0,1];
           let itemArr : any = [];
           for (const element of items) {
@@ -155,6 +153,9 @@ export default function PetPage() {
 
       }
 		  })
+
+
+      
   const {isOpen : isOpenPetName , onOpen : onOpenPetName, onOpenChange : onOpenChangePetName , onClose : onCloseChangePetName} = useDisclosure();
   const debouncedPetName = useDebounce(petName, 500)
   const debouncedSelectedPet = useDebounce(selectedPet, 500)
@@ -191,8 +192,21 @@ export default function PetPage() {
      
       setPetName(event.target.value);
     };
-    const handleChangeSelectPet = ( event : any )=> {
+    const handleChangeSelectPet = async ( event : any )=> {
       localStorage.setItem('pet',event.target.value);
+      const Info : any = await readContracts({
+        contracts: [
+          {
+            address: nftAddress,
+            abi: nftAbi,
+            functionName: 'getPetInfo',
+            args: [event.target.value],
+          }
+        ],
+      })
+      setOwnPet(Info[0].result)
+      const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
+      setCountDownseconds(seconds)
       setSelectedPet(event.target.value);
     };
     const onChangePetName = () =>{
@@ -203,7 +217,42 @@ export default function PetPage() {
       setSelectedItem(itemId);
       setBuyAccessoryAsync?.();
    }
-   
+   const { isLoading } = useWaitForTransaction({
+    hash: buyAccessoryResult?.hash,
+    onSuccess(data) {
+     // console.log('success data', data)
+      
+      let getItemInfo :any = [];
+      itemData.forEach((element:any) => {
+        if(element.id == selectedItem){
+          getItemInfo = element;
+        }
+      });
+      
+      console.log('success data', getItemInfo)
+      const loadData = async() => {
+        const Info : any = await readContracts({
+          contracts: [
+            {
+              address: nftAddress,
+              abi: nftAbi,
+              functionName: 'getPetInfo',
+              args: [ownPet[0]],
+            }
+          ],
+        })
+        setOwnPet(Info[0].result)
+        console.log("time",parseInt(Info[0].result[4]) *1000)
+        const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
+        setCountDownseconds(seconds)
+      }
+      loadData();
+      setBalloons(`Pet ${ownPet[0]} was fed ${getItemInfo.name} !` );
+    },
+    onError(error) {
+      setBalloons(`Cannot be fed !` );
+    },
+  })
 
   React.useEffect(() => {
     async function fetchMyAPI() {
@@ -257,20 +306,9 @@ export default function PetPage() {
         ],
       })
       setOwnPet(Info[0].result)
-      setInterval(async() => {
-        const Info : any = await readContracts({
-          contracts: [
-            {
-              address: nftAddress,
-              abi: nftAbi,
-              functionName: 'getPetInfo',
-              args: [petId],
-            }
-          ],
-        })
-        setOwnPet(Info[0].result)
-        console.log("a")
-      }, 10000);
+      const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
+      setCountDownseconds(seconds)
+    
       
     }
     setPetData(petArr)
@@ -330,7 +368,7 @@ src="/gotchi/Icon/skull2.png"
 /></div>
 <div className="col-span-2 "><span className="text-sm">Healthy</span></div>
 
-<div className="row-span-1 col-span-2 "><span className="font-bold text-lg">22d3M1s</span></div>
+<div className="row-span-1 col-span-2 "><span className="font-bold text-lg"> <CountDownTimer seconds={countDownseconds} /></span></div>
 </div>
 
 </div>
@@ -351,17 +389,45 @@ src="/gotchi/Icon/skull2.png"
 <div className="col-start-1 col-end-7 h-16">
 <Card>
   <CardBody>
-    <p>Your pet is hungry.</p>
+    <p>{balloons ? balloons : `Your pet is ${ ownPet  ?  ownPet[1] == 0 ? 'HAPPY' : ownPet[1] == 1 ? 'HUNGRY' :  ownPet[1] == 2 ? 'STARVING' :  ownPet[1] == 3 ? 'DYING' :  ownPet[1] == 4 ? 'DEAD' :'' : ''}` }</p>
   </CardBody>
 </Card>
 </div>
 <div className="col-start-1 col-end-7 ">
   <div className="flex justify-center">
+  {ownPet  ?  ownPet[1] == 0 ? (
   <Image
   radius={"none"}
   width={40}
   src="/gotchi/Animated/GIF_Happy.gif"
 />
+  ) : ownPet[1] == 1 ? (
+    <Image
+    radius={"none"}
+    width={40}
+    src="/gotchi/Animated/GIF_Happy.gif"
+  />
+  ) :  ownPet[1] == 2 ? (
+    <Image
+    radius={"none"}
+    width={40}
+    src="/gotchi/Animated/GIF_Exclamation.gif"
+  />
+  ) :  ownPet[1] == 3 ? (
+    <Image
+    radius={"none"}
+    width={40}
+    src="/gotchi/Animated/GIF_Sad.gif"
+  />
+  ) :  ownPet[1] == 4 ? (
+    <Image
+    radius={"none"}
+    width={40}
+    src="/gotchi/Animated/GIF_Die.gif"
+  />
+
+  ) :'' : ''}
+
   </div>
   </div>
 <div className="col-start-1 col-end-7 ">
@@ -435,11 +501,11 @@ labelPlacement="outside"
   <Progress size="sm" color="default" aria-label="" value={100} /></div>
 
   <div className="col-start-1 col-end-3 ">Reward</div>
-<div className="col-end-7 col-span-1 ">ETH:{itemData && itemData[0].name}</div>
+<div className="col-end-7 col-span-1 ">{ownPet ? ownPet[8].toString() : ''} ETH</div>
 </div>
 <div className="grid grid-cols-2 gap-4  p-6">
 {itemData  && itemData.map((item:any)=>(
-<Tooltip key={"default"}  color={"default"} content={"lost 10 FP"} className="capitalize">
+<Tooltip key={"default"}  color={"default"} content={`Feed 1 ${item.name} : ${parseInt(item.points).toFixed(2).toString()} PTS & ${(parseInt(item.timeExtension)/3600/24).toFixed(2).toString()} TOD with ${(parseInt(item.price)/1e18).toString()} Joy`} className="capitalize">
   <button type="button" className="nes-btn w-full" onClick={()=>onBuyAccessory(item.id)}> {item.name} </button>
 </Tooltip>
 ))}
