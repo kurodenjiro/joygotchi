@@ -1,9 +1,21 @@
+"use client"
 import { title } from "@/components/primitives";
-
-export default function PricingPage() {
+import {Table, TableHeader, TableColumn,Link, TableBody, TableRow, TableCell, User, Chip, Tooltip, getKeyValue,Button} from "@nextui-org/react";
+export default function ActivityPage() {
 	return (
 		<div>
-			<h1 className={title()}>Pricing</h1>
+				<Table aria-label="Example static collection table h-44" className="pt-3">
+      <TableHeader>
+        <TableColumn>Addr.</TableColumn>
+        <TableColumn>Pet</TableColumn>
+        <TableColumn>Action</TableColumn>
+      </TableHeader>
+      <TableBody>
+	 
+       
+      </TableBody>
+    </Table>
+
 		</div>
 	);
 }
