@@ -48,6 +48,7 @@ export default function PetPage() {
   const [itemData, setItemData] = React.useState<any>(null)
   const [isClient, setIsClient] = React.useState<any>(true)
   const [selectedPet, setSelectedPet] = React.useState<any>(null)
+  const [ownPet, setOwnPet] = React.useState<any>(null)
   const [selectedItem, setSelectedItem] = React.useState<any>(null)
   const [petName, setPetName] = React.useState<any>(null)
   const { address, connector, isConnected } = useAccount()
@@ -92,11 +93,37 @@ export default function PetPage() {
           console.log("check",petArr)
           if(petArr[0]){
             const pet = localStorage.getItem('pet');
+          
           if (pet) {
             setSelectedPet(pet);
+            const Info : any = await readContracts({
+              contracts: [
+                {
+                  address: nftAddress,
+                  abi: nftAbi,
+                  functionName: 'getPetInfo',
+                  args: [BigInt(pet)],
+                }
+              ],
+            })
+            setOwnPet(Info[0].result)
+            
           }else{
             setSelectedPet(petArr[0].value)
+            const Info : any = await readContracts({
+              contracts: [
+                {
+                  address: nftAddress,
+                  abi: nftAbi,
+                  functionName: 'getPetInfo',
+                  args: [petArr[0].value],
+                }
+              ],
+            })
+            setOwnPet(Info[0].result)
           }
+
+   
         }
           let items : any = [0,1];
           let itemArr : any = [];
@@ -209,11 +236,42 @@ export default function PetPage() {
       
       if(petArr[0]){
         const pet = localStorage.getItem('pet');
+        let petId : any  = null ;
       if (pet) {
         setSelectedPet(pet);
+        petId = BigInt(pet)
+    
       }else{
+        localStorage.setItem('pet',petArr[0].value);
+        petId = petArr[0].value;
         setSelectedPet(petArr[0].value)
       }
+      const Info : any = await readContracts({
+        contracts: [
+          {
+            address: nftAddress,
+            abi: nftAbi,
+            functionName: 'getPetInfo',
+            args: [petId],
+          }
+        ],
+      })
+      setOwnPet(Info[0].result)
+      setInterval(async() => {
+        const Info : any = await readContracts({
+          contracts: [
+            {
+              address: nftAddress,
+              abi: nftAbi,
+              functionName: 'getPetInfo',
+              args: [petId],
+            }
+          ],
+        })
+        setOwnPet(Info[0].result)
+        console.log("a")
+      }, 10000);
+      
     }
     setPetData(petArr)
       let items : any = [0,1];
@@ -267,11 +325,12 @@ export default function PetPage() {
 
 <div className="row-span-2 "> <Image
     radius={"none"}
-    width={40}
+    width={35}
 src="/gotchi/Icon/skull2.png"
 /></div>
 <div className="col-span-2 "><span className="text-sm">Healthy</span></div>
-<div className="row-span-1 col-span-2 "><span className="font-bold text-lg">Dead</span></div>
+
+<div className="row-span-1 col-span-2 "><span className="font-bold text-lg">22d3M1s</span></div>
 </div>
 
 </div>
@@ -286,7 +345,7 @@ src="/gotchi/Icon/skull2.png"
   src="/gotchi/Icon/Heart.png"
 /></div>
 <div className="col-span-2 "><span className="text-sm">Healthy</span></div>
-<div className="row-span-1 col-span-2 "><span className="font-bold text-lg">Happy</span></div>
+<div className="row-span-1 col-span-2 "><span className="font-bold text-lg">{ ownPet  ?  ownPet[1] == 0 ? 'HAPPY' : ownPet[1] == 1 ? 'HUNGRY' :  ownPet[1] == 2 ? 'STARVING' :  ownPet[1] == 3 ? 'DYING' :  ownPet[1] == 4 ? 'DEAD' :'' : ''}</span></div>
 </div>
 </div>
 <div className="col-start-1 col-end-7 h-16">
@@ -314,7 +373,7 @@ src="/gotchi/Icon/skull2.png"
 />
   </div>
   </div>
-<div className="col-start-1 col-end-3 ">Level 10</div>
+<div className="col-start-1 col-end-3 ">{ownPet ? `Level ${ownPet[3].toString()}` : ''} </div>
 <div className="col-end-7 col-span-3">
 <div className="grid grid-cols-3">
 <div className="col-span-1 justify-self-end">

@@ -21,21 +21,20 @@ import {
   const MAX_ALLOWANCE = BigInt('20000000000000000000000')
   const tokenAddress = '0xf28194a06800FEf63C312E5D41967Ca85A5De121'
   
-  
+  //https://github.com/ChangoMan/nextjs-ethereum-starter/blob/main/frontend/pages/index.tsx
 export default function battle() {
 
 	const [listBattle, setListBattle] = React.useState<any>(null);
 	const { address, connector, isConnected } = useAccount();
 	const [ownPet, setOwnPet] = React.useState<any>(null)
-	const [isClient, setIsClient] = React.useState(true)
 	const [selectedPet, setSelectedPet] = React.useState<any>(null)
 	const debouncedSelectedPet = useDebounce(selectedPet, 500)
-	
+	const debouncedOwnPet = useDebounce(ownPet, 500)
 	const { config : configAttack } = usePrepareContractWrite({
 		address: nftAddress,
 		abi: nftAbi,
 		functionName: "attack",
-		args: [ownPet ? ownPet[9] : "0", debouncedSelectedPet],
+		args: [debouncedOwnPet ? ownPet[9] : "0", debouncedSelectedPet],
 		});
 	  
 		const {
@@ -69,60 +68,7 @@ const onKill = ( petId : any )=> {
 	  setKillAsync?.();
     };
 
-	const { chain  } = useNetwork()
-		const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
-		  useSwitchNetwork({
-			  onMutate(args) {
-				  console.log('Mutate', args)
-				},
-			  onSettled(data, error) {
-				  console.log('Settled', { data, error })
-				  async function fetchMyAPI() {
-					let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
-					response = await response.json()
-					let petArr : any = [];
-					if(response.items){
-					  for (const element of response.items) {
-						const Info : any = await readContracts({
-						  contracts: [
-							{
-							  address: nftAddress,
-							  abi: nftAbi,
-							  functionName: 'getPetInfo',
-							  args: [element.id],
-							}
-						  ],
-						})
-						if(element.owner.hash !== address){
-						  petArr.push(Info[0].result)
-						}
-					  }
-					}
-					setListBattle(petArr)
-					
-					const pet = localStorage.getItem('pet');
-					if (pet) {
-						const Info : any = await readContracts({
-							contracts: [
-							  {
-								address: nftAddress,
-								abi: nftAbi,
-								functionName: 'getPetInfo',
-								args: [BigInt(pet)],
-							  }
-							],
-						  })
-						  console.log("pet",Info[0].result)
-						  setOwnPet(Info[0].result);
-				  }
-			  
-				  }
-				  fetchMyAPI()
-				  setIsClient(true);
-			  },
-			  onSuccess(data) {
-			  }
-			})
+
 	React.useEffect(() => {
 		async function fetchMyAPI() {
 		  let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
@@ -166,17 +112,10 @@ const onKill = ( petId : any )=> {
 		}
 	
 		}
-		if(chain?.id == 919){
-			setIsClient(true);
-			fetchMyAPI()
-			
-		  }else{
-			setIsClient(false);
-		  }
-		
+		fetchMyAPI()
+		console.log('a');
 	  }, [])
 	return (
-		isClient ? (
 		<div>
 <Table aria-label="Example static collection table " className="pt-3">
       <TableHeader>
@@ -186,8 +125,8 @@ const onKill = ( petId : any )=> {
       </TableHeader>
       <TableBody>
 	  {listBattle && listBattle.map((pet:any,index:number) => (
-       <TableRow key={index}>
-	   <TableCell> 
+       <TableRow key={index} >
+	   <TableCell > 
 		 <User
 		 avatarProps={{radius: "lg", className:"p-1" ,src: "/gotchi/Animated/GIF_Pet.gif"}}
 		 description={'lv:'+pet[3]}
@@ -195,7 +134,7 @@ const onKill = ( petId : any )=> {
 		 
 	   >
 	   </User></TableCell>
-	   <TableCell> 
+	   <TableCell > 
 	   {/* enum Status {
         HAPPY = 0,
         HUNGRY = 1,
@@ -240,18 +179,6 @@ src="/gotchi/Icon/skull2.png"
        
       </TableBody>
     </Table>
-		</div>) :(
-			        <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 ">
-					<button
-						  key={919}
-						  onClick={() => switchNetwork?.(919)}
-					  className="nes-btn w-52 mt-48"
-						>
-						 switch to Mode Testnet
-						  {loadingSwingNetwork && pendingChainId === 919 && ' (switching)'}
-						</button>
-						<span>{errorSwitchNetwork && errorSwitchNetwork.message}</span>
-						  </div>
+		</div>
 		)
-	);
 }
