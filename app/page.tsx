@@ -65,7 +65,7 @@ const { data: allowance, refetch } = useContractRead({
 	  
 
 	  const { chain  } = useNetwork()
-	  const [isClient, setIsClient] = React.useState(false)
+	  const [isClient, setIsClient] = React.useState(true)
 	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
 		useSwitchNetwork({
 			onMutate(args) {

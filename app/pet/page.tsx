@@ -36,7 +36,7 @@ import {
   useNetwork, 
 	useSwitchNetwork
   } from "wagmi";
-  import { readContracts , writeContract } from '@wagmi/core'
+  import { readContracts  } from '@wagmi/core'
   const nftAddress= '0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241';
   const MAX_ALLOWANCE = BigInt('20000000000000000000000')
   const tokenAddress = '0xf28194a06800FEf63C312E5D41967Ca85A5De121'
@@ -46,7 +46,7 @@ import {
 export default function PetPage() {
   const [petData, setPetData] = React.useState<any>(null)
   const [itemData, setItemData] = React.useState<any>(null)
-  const [isClient, setIsClient] = React.useState(false)
+  const [isClient, setIsClient] = React.useState<any>(true)
   const [selectedPet, setSelectedPet] = React.useState<any>(null)
   const [selectedItem, setSelectedItem] = React.useState<any>(null)
   const [petName, setPetName] = React.useState<any>(null)
@@ -122,9 +122,9 @@ export default function PetPage() {
           setItemData(itemArr);
           
         }
-    
+        setIsClient(true);
         fetchMyAPI()
-				setIsClient(true);
+				
 
       }
 		  })
@@ -132,6 +132,7 @@ export default function PetPage() {
   const debouncedPetName = useDebounce(petName, 500)
   const debouncedSelectedPet = useDebounce(selectedPet, 500)
   const debouncedSelectedItem = useDebounce(selectedItem, 500)
+
   const { config : configPetName } = usePrepareContractWrite({
     address: nftAddress,
     abi: nftAbi,
@@ -179,8 +180,6 @@ export default function PetPage() {
 
   React.useEffect(() => {
     async function fetchMyAPI() {
-
-     
 
       let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
       response = await response.json()
@@ -242,11 +241,12 @@ export default function PetPage() {
       
     }
 
-    fetchMyAPI()
+   // fetchMyAPI()
 
     if(chain?.id == 919){
-      fetchMyAPI()
       setIsClient(true);
+      fetchMyAPI()
+      
     }else{
       setIsClient(false);
     }
