@@ -15,9 +15,9 @@ import {
 	useSwitchNetwork
   } from "wagmi";
   
-const ADDRESS= '0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241';
+const ADDRESS= '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE';
 const MAX_ALLOWANCE = BigInt('20000000000000000000000')
-const tokenAddress = '0xf28194a06800FEf63C312E5D41967Ca85A5De121'
+const tokenAddress = '0x110Ac22029AbAf5e15418B95619508cAE6f1a8Ec'
 //https://wagmi.sh/examples/contract-write
 export default function Home() {
 //check allowrance
@@ -51,7 +51,7 @@ const { data: allowance, refetch } = useContractRead({
 		error: prepareError,
 		isError: isPrepareError,
 	  } = usePrepareContractWrite({
-		address: '0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241',
+		address: '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE',
 		abi: nftAbi,
 		functionName: 'mint',
 	  })

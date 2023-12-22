@@ -6,7 +6,7 @@
 //https://www.iconfinder.com/search?q=8%20bit&price=free
 //https://www.iconfinder.com/search/icons?family=pixel-15
 //https://www.iconfinder.com/kladenko
-//https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances
+//https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances
 //https://www.shutterstock.com/image-vector/8bit-pixel-characters-say-hello-94043773
 //https://www.shutterstock.com/image-vector/collection-colorful-pixel-icons-vector-illustration-2172310153
 //https://www.shutterstock.com/image-vector/colorful-butterfly-icon-pixel-art-2198218611
@@ -39,9 +39,9 @@ import {
 import { readContracts  , watchAccount} from '@wagmi/core'
 import CountDownTimer from "./CountDownTimer";
 
-  const nftAddress= '0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241';
+  const nftAddress= '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE';
   const MAX_ALLOWANCE = BigInt('20000000000000000000000')
-  const tokenAddress = '0xf28194a06800FEf63C312E5D41967Ca85A5De121'
+  const tokenAddress = '0x110Ac22029AbAf5e15418B95619508cAE6f1a8Ec'
 
 
 
@@ -62,7 +62,7 @@ export default function PetPage() {
   const unwatch = watchAccount((account) => {
     async function fetchMyAPI() {
 
-      let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+      let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
       response = await response.json()
       let petArr : any = [];
       console.log(response.items)
@@ -155,7 +155,7 @@ export default function PetPage() {
 			},
 			onSuccess(data) {
         async function fetchMyAPI() {
-          let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+          let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
           response = await response.json()
           let petArr : any = [];
           console.log(response.items)
@@ -342,7 +342,7 @@ export default function PetPage() {
   React.useEffect(() => {
     async function fetchMyAPI() {
 
-      let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+      let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
       response = await response.json()
       let petArr : any = [];
       console.log(response.items)

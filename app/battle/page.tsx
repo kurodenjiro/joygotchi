@@ -13,8 +13,8 @@ import {
   import { nftAbi , tokenAbi } from '../../abi';
   import { useDebounce } from './useDebounce'
   import {Image} from "@nextui-org/react";
-  const nftAddress= '0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241';
-  const tokenAddress = '0xf28194a06800FEf63C312E5D41967Ca85A5De121'
+  const nftAddress= '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE';
+  const tokenAddress = '0x110Ac22029AbAf5e15418B95619508cAE6f1a8Ec'
   //https://github.com/ChangoMan/nextjs-ethereum-starter/blob/main/frontend/pages/index.tsx
 export default function Battle() {
 
@@ -29,7 +29,7 @@ export default function Battle() {
 	const unwatch = watchAccount((account) => {
 		async function fetchMyAPI() {
 	
-		//   let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+		//   let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
 		//   response = await response.json()
 
 		//   setOwnPet(response.items[0].id)
@@ -61,7 +61,7 @@ export default function Battle() {
 			  list.push(`You Pet #${debouncedOwnPetId} attacked #${debouncedSelectedPet}`)
 			  setActivity(list)
 			  async function fetchMyAPI() {
-				let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+				let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
 				response = await response.json()
 				let petArr : any = [];
 				if(response.items){
@@ -134,7 +134,7 @@ const onAttack = ( petId : any )=> {
 			  const list = activity;
 			  list.push(`You Pet ${debouncedOwnPetId} killed ${debouncedSelectedPet}`)
 			  async function fetchMyAPI() {
-				let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+				let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
 				response = await response.json()
 				let petArr : any = [];
 				if(response.items){
@@ -189,7 +189,7 @@ const onKill = ( petId : any )=> {
 
 	useEffect(() => {
 		async function fetchMyAPI() {
-		  let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0xe70BbbA43664e133a8BdD459ec5DbDAFB4c6b241/instances')
+		  let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
 		  response = await response.json()
 		  let petArr : any = [];
 		  if(response.items){
