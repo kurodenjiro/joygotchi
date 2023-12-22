@@ -315,21 +315,26 @@ export default function PetPage() {
       });
       
       console.log('success data', getItemInfo)
+      
       const loadData = async() => {
-        const Info : any = await readContracts({
-          contracts: [
-            {
-              address: nftAddress,
-              abi: nftAbi,
-              functionName: 'getPetInfo',
-              args: [ownPet[0]],
-            }
-          ],
-        })
-        setOwnPet(Info[0].result)
-        console.log("time",parseInt(Info[0].result[4]) *1000)
-        const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
-        setCountDownseconds(seconds)
+        const petId = localStorage.getItem('pet');
+        if(petId){
+          const Info : any = await readContracts({
+            contracts: [
+              {
+                address: nftAddress,
+                abi: nftAbi,
+                functionName: 'getPetInfo',
+                args: [BigInt(petId)],
+              }
+            ],
+          })
+          console.log("pet",Info[0].result)
+          setOwnPet(Info[0].result)
+          const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
+          setCountDownseconds(seconds)
+        }
+        
       }
       loadData();
       setBalloons(`Pet ${ownPet[0]} was fed ${getItemInfo.name} !` );
