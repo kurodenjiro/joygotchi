@@ -1,5 +1,4 @@
 "use client"
-
 //https://nostalgic-css.github.io/NES.css/
 //https://fonts.google.com/specimen/Silkscreen
 //https://www.iconfinder.com/iconsets/8-bit
@@ -33,125 +32,39 @@ import {
 	useWaitForTransaction,
 	useAccount,
 	useConnect,
-  useNetwork, 
+  useNetwork,
 	useSwitchNetwork
   } from "wagmi";
 import { readContracts  , watchAccount} from '@wagmi/core'
 import CountDownTimer from "./CountDownTimer";
 
   const nftAddress= '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE';
-  const MAX_ALLOWANCE = BigInt('20000000000000000000000')
-  const tokenAddress = '0x110Ac22029AbAf5e15418B95619508cAE6f1a8Ec'
 
 
 
 export default function PetPage() {
   const [petData, setPetData] = React.useState<any>(null)
+  const [isPet, setIsPet] = React.useState<any>(false)
   const [itemData, setItemData] = React.useState<any>(null)
-  const [isClient, setIsClient] = React.useState<any>(true)
+  const [isAddress, setIsAddress] = React.useState<any>(false)
+  const [isChain, setIsChain] = React.useState<any>(false)
   const [selectedPet, setSelectedPet] = React.useState<any>(null)
   const [ownPet, setOwnPet] = React.useState<any>(null)
   const [selectedItem, setSelectedItem] = React.useState<any>(null)
   const [balloons, setBalloons] = React.useState<any>(null)
   const [petName, setPetName] = React.useState<any>(null)
-  const [intervalArr, setIntervalArr] = React.useState<any>(null)
   const { address, connector, isConnected } = useAccount()
-  const { connect, connectors , pendingConnector } = useConnect()
+
+  const { connect, connectors, error : errorConnect, isLoading : isLoadingConnect, pendingConnector } = useConnect()
   const [countDownseconds, setCountDownseconds] = React.useState(0);
   const { chain  } = useNetwork()
-  const unwatch = watchAccount((account) => {
-    async function fetchMyAPI() {
-
-      let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
-      response = await response.json()
-      let petArr : any = [];
-      console.log(response.items)
-      if(response.items){
-        for (const element of response.items) {
-          const Info : any = await readContracts({
-            contracts: [
-              {
-                address: nftAddress,
-                abi: nftAbi,
-                functionName: 'getPetInfo',
-                args: [element.id],
-              }
-            ],
-          })
-          if(element.owner.hash == address){
-            petArr.push({
-              value:element.id,
-              label:Info[0].result[0]
-            })
-          }
-        }
-      }
-      console.log("check",petArr)
-      
-      if(petArr[0]){
-        const pet = localStorage.getItem('pet');
-        let petId : any  = null ;
-      if (pet) {
-        setSelectedPet(pet);
-        petId = BigInt(pet)
-    
-      }else{
-        localStorage.setItem('pet',petArr[0].value);
-        petId = petArr[0].value;
-        setSelectedPet(petArr[0].value)
-      }
-      const Info : any = await readContracts({
-        contracts: [
-          {
-            address: nftAddress,
-            abi: nftAbi,
-            functionName: 'getPetInfo',
-            args: [petId],
-          }
-        ],
-      })
-      setOwnPet(Info[0].result)
-      const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
-      setCountDownseconds(seconds)
-    
-      
-    }
-    setPetData(petArr)
-      let items : any = [0,1];
-      let itemArr : any = [];
-      for (const element of items) {
-        const Info : any = await readContracts({
-          contracts: [
-            {
-              address: nftAddress,
-              abi: nftAbi,
-              functionName: 'getItemInfo',
-              args: [element],
-            }
-          ],
-        })
-        itemArr.push({
-          id:element,
-          name:Info[0].result[0],
-          price:Info[0].result[1],
-          points:Info[0].result[2],
-          timeExtension:Info[0].result[3],
-        })
-      }
-      setItemData(itemArr);
-      
-    }
-
-   // fetchMyAPI()
-	})
+  
 	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
 		useSwitchNetwork({
 			onMutate(args) {
 				console.log('Mutate', args)
 			  },
 			onSettled(data, error) {
-				console.log('Settled', { data, error })
-				setIsClient(true);
 			},
 			onSuccess(data) {
         async function fetchMyAPI() {
@@ -232,7 +145,6 @@ export default function PetPage() {
           setItemData(itemArr);
           
         }
-        setIsClient(true);
         fetchMyAPI()
 				
 
@@ -345,11 +257,12 @@ export default function PetPage() {
   })
 
   React.useEffect(() => {
+    
     async function fetchMyAPI() {
 
       let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
       response = await response.json()
-      let petArr : any = [];
+      const petArr : any = [];
       console.log(response.items)
       if(response.items){
         for (const element of response.items) {
@@ -402,6 +315,14 @@ export default function PetPage() {
       
     }
     setPetData(petArr)
+    if(petArr.length > 0 ){
+      console.log("aaaaaaaaaaaaaaa")
+      setIsPet(true)
+    }
+    if(petArr.length == 0 ){
+      console.log("bbbbbbbbbbbbb")
+      setIsPet(false)
+    }
       let items : any = [0,1];
       let itemArr : any = [];
       for (const element of items) {
@@ -427,22 +348,18 @@ export default function PetPage() {
       
     }
 
-   // fetchMyAPI()
+   console.log("chain_id",process.env.CHAIN_ID);
+   fetchMyAPI()
+   if(address) {setIsAddress(true)}else{
+    setIsAddress(false);
+   };
+   if(chain?.id == 919){setIsChain(true)}else{
+    setIsChain(false)
+   }
 
-    if(chain?.id == 919){
-      setIsClient(true);
-      fetchMyAPI()
-      
-    }else{
-      setIsClient(false);
-    }
- 
-
-  }, [])
-
+  }, [address,chain])
 	return (
-    
-     isClient  ? (
+    isChain  && isAddress &&   isPet  && (
       <>
 <div className="grid grid-cols-6 gap-3 pt-5">
 
@@ -602,18 +519,57 @@ labelPlacement="outside"
 </div>
 
 </>
-      ) : (
+      ) ||
+      
+      isChain == false  && isAddress  && (
         <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 ">
   <button
         key={919}
         onClick={() => switchNetwork?.(919)}
     className="nes-btn w-52 mt-48"
       >
-       switch to Mode Testnet
+       Switch Chain
         {loadingSwingNetwork && pendingChainId === 919 && ' (switching)'}
       </button>
       <span>{errorSwitchNetwork && errorSwitchNetwork.message}</span>
         </div>
     )
-	);
+	) || isAddress == false && (
+    <div className="mt-3">
+    {connectors.map((connector) => (
+      
+      <button
+      className="nes-btn w-48  m-2 "
+        disabled={!connector.ready}
+        key={connector.id}
+        onClick={() => connect({ connector })}
+      >
+        {connector.name}
+        {!connector.ready }
+        {isLoadingConnect &&
+          connector.id === pendingConnector?.id &&
+          ' (connecting)'}
+      </button>
+    ))}
+
+    {errorConnect && <div>{errorConnect.message}</div>}
+  </div>
+   ) || isPet ==  false  &&  isChain && isAddress &&(
+    <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 ">
+     <h1 className="mt-48">You Dont Own Any Pet !</h1> 
+   <button
+className="nes-btn w-52"
+  >
+   Mint A Fens
+  
+  </button>
+  
+  </div>
+  
+  )
+   
+   
+   ;
+
+  
 }
