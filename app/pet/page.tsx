@@ -62,7 +62,9 @@ export default function PetPage() {
   const unwatch = watchAccount((account) => {
 
     async function fetchMyAPI() {
-
+      if(address) {setIsAddress(true)}else{
+        setIsAddress(false);
+       };
       let response : any= await fetch(`${process.env.EXPLORER_URL}/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
       response = await response.json()
       const petArr : any = [];
@@ -152,9 +154,7 @@ export default function PetPage() {
     }
 
    fetchMyAPI()
-   if(address) {setIsAddress(true)}else{
-    setIsAddress(false);
-   };
+
   })
 	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
 		useSwitchNetwork({
@@ -421,7 +421,12 @@ export default function PetPage() {
       error:errorAllowance,
     } = useContractWrite(configAllowance);
   React.useEffect(() => {
-    
+    if(address) {setIsAddress(true)}else{
+      setIsAddress(false);
+     };
+     if(chain?.id == process.env.CHAIN_ID){setIsChain(true)}else{
+      setIsChain(false)
+     }
     async function fetchMyAPI() {
 
       let response : any= await fetch(`${process.env.EXPLORER_URL}/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
@@ -513,12 +518,7 @@ export default function PetPage() {
     }
 
    fetchMyAPI()
-   if(address) {setIsAddress(true)}else{
-    setIsAddress(false);
-   };
-   if(chain?.id == process.env.CHAIN_ID){setIsChain(true)}else{
-    setIsChain(false)
-   }
+
 
   }, [address,chain])
 	return (
