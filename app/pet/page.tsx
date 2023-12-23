@@ -45,7 +45,7 @@ import CountDownTimer from "./CountDownTimer";
 
 export default function PetPage() {
   const [petData, setPetData] = React.useState<any>(null)
-  const [isPet, setIsPet] = React.useState<any>(false)
+  const [isPet, setIsPet] = React.useState<any>(true)
   const [itemData, setItemData] = React.useState<any>(null)
   const [isAddress, setIsAddress] = React.useState<any>(false)
   const [isChain, setIsChain] = React.useState<any>(false)
