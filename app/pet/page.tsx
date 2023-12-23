@@ -11,18 +11,13 @@
 //https://www.shutterstock.com/image-vector/colorful-butterfly-icon-pixel-art-2198218611
 //https://www.shutterstock.com/image-vector/pixel-art-8bit-different-types-butterflies-2260306285
 import React from "react";
-import { title , subtitle} from "@/components/primitives";
 import {Progress} from "@nextui-org/react";
-import { siteConfig } from "@/config/site";
 import {Input} from "@nextui-org/react";
-import {Select, SelectItem, Avatar ,Tooltip ,Button} from "@nextui-org/react";
+import {Select, SelectItem ,Tooltip ,Button} from "@nextui-org/react";
 import {Card, CardBody} from "@nextui-org/react";
 import { button as buttonStyles } from "@nextui-org/theme";
-import { GithubIcon } from "@/components/icons";
-import { Link } from "@nextui-org/link";
 import {Image} from "@nextui-org/react";
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Checkbox} from "@nextui-org/react";
-import {Divider} from "@nextui-org/react";
 import { useDebounce } from './useDebounce'
 import { nftAbi , tokenAbi } from '../../abi';
 import {
@@ -45,7 +40,7 @@ import CountDownTimer from "./CountDownTimer";
 
 export default function PetPage() {
   const [petData, setPetData] = React.useState<any>(null)
-  const [isPet, setIsPet] = React.useState<any>(false)
+  const [isPet, setIsPet] = React.useState<any>(true)
   const [itemData, setItemData] = React.useState<any>(null)
   const [isAddress, setIsAddress] = React.useState<any>(false)
   const [isChain, setIsChain] = React.useState<any>(false)
@@ -121,11 +116,9 @@ export default function PetPage() {
     }
     setPetData(petArr)
     if(petArr.length > 0 ){
-      console.log("aaaaaaaaaaaaaaa")
       setIsPet(true)
     }
     if(petArr.length == 0 ){
-      console.log("bbbbbbbbbbbbb")
       setIsPet(false)
     }
       let items : any = [0,1];
