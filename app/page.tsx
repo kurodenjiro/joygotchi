@@ -139,7 +139,7 @@ const { data: allowance, refetch } = useContractRead({
         <div>
           Successfully minted your NFT!
           <div>
-            <a className="text-green-400" href={`https://sepolia.explorer.mode.network/tx/${data?.hash}`}>Scan Tx</a>
+            <a className="text-green-400" href={`${process.env.EXPLORER_URL}/tx/${data?.hash}`}>Scan Tx</a>
           </div>
         </div>
       )}

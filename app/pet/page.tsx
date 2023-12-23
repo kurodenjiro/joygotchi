@@ -5,7 +5,7 @@
 //https://www.iconfinder.com/search?q=8%20bit&price=free
 //https://www.iconfinder.com/search/icons?family=pixel-15
 //https://www.iconfinder.com/kladenko
-//https://sepolia.explorer.mode.network/api/v2/tokens/process.env.NFT_ADDRESS/instances
+//${process.env.EXPLORER_URL}/api/v2/tokens/process.env.NFT_ADDRESS/instances
 //https://www.shutterstock.com/image-vector/8bit-pixel-characters-say-hello-94043773
 //https://www.shutterstock.com/image-vector/collection-colorful-pixel-icons-vector-illustration-2172310153
 //https://www.shutterstock.com/image-vector/colorful-butterfly-icon-pixel-art-2198218611
@@ -63,7 +63,7 @@ export default function PetPage() {
 
     async function fetchMyAPI() {
 
-      let response : any= await fetch(`https://sepolia.explorer.mode.network/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
+      let response : any= await fetch(`${process.env.EXPLORER_URL}/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
       response = await response.json()
       const petArr : any = [];
       console.log(response.items)
@@ -165,7 +165,7 @@ export default function PetPage() {
 			},
 			onSuccess(data) {
         async function fetchMyAPI() {
-          let response : any= await fetch(`https://sepolia.explorer.mode.network/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
+          let response : any= await fetch(`${process.env.EXPLORER_URL}/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
           response = await response.json()
           let petArr : any = [];
           console.log(response.items)
@@ -398,7 +398,6 @@ export default function PetPage() {
          
        }
        loadData();
-       setBalloons(`Pet ${ownPet[0]} was fed ${getItemInfo.name} !` );
      }
     })
 
@@ -425,7 +424,7 @@ export default function PetPage() {
     
     async function fetchMyAPI() {
 
-      let response : any= await fetch(`https://sepolia.explorer.mode.network/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
+      let response : any= await fetch(`${process.env.EXPLORER_URL}/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
       response = await response.json()
       const petArr : any = [];
       console.log(response.items)
