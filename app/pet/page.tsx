@@ -39,7 +39,8 @@ import { readContracts  , watchAccount} from '@wagmi/core'
 import CountDownTimer from "./CountDownTimer";
 
   const nftAddress= '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE';
-
+  const MAX_ALLOWANCE = BigInt('20000000000000000000000')
+  const tokenAddress = '0x110Ac22029AbAf5e15418B95619508cAE6f1a8Ec'
 
 
 export default function PetPage() {
@@ -157,7 +158,7 @@ export default function PetPage() {
   const debouncedPetName = useDebounce(petName, 500)
   const debouncedSelectedPet = useDebounce(selectedPet, 500)
   const debouncedSelectedItem = useDebounce(selectedItem, 500)
-
+  const debouncedAddress = useDebounce(address, 500)
   const { config : configPetName } = usePrepareContractWrite({
     address: nftAddress,
     abi: nftAbi,
@@ -186,7 +187,6 @@ export default function PetPage() {
 
 
     const handleChangePetName = ( event : any )=> {
-     
       setPetName(event.target.value);
     };
     const handleChangeSelectPet = async ( event : any )=> {
@@ -256,6 +256,40 @@ export default function PetPage() {
     },
   })
 
+  const {
+		config,
+		error: prepareErrorMint,
+		isError: isPrepareErrorMint,
+	  } = usePrepareContractWrite({
+		address: nftAddress,
+		abi: nftAbi,
+		functionName: 'mint',
+	  })
+	  const { data, error, isError, write : mint } = useContractWrite(config)
+	 
+	  const { isLoading: isLoadingMint, isSuccess  : isSuccessMint} = useWaitForTransaction({
+		hash: data?.hash,
+	  })
+
+    const { data: allowance, refetch } = useContractRead({
+      address: tokenAddress,
+      abi: tokenAbi,
+      functionName: "allowance",
+      args: [`0x${address ? address.slice(2) : ''}`, nftAddress],
+    });
+  
+    const { config : configAllowance } = usePrepareContractWrite({
+    address: tokenAddress,
+    abi: tokenAbi,
+    functionName: "approve",
+    args: [nftAddress, MAX_ALLOWANCE],
+    });
+  
+    const {
+      data: writeContractResult,
+      writeAsync: approveAsync,
+      error:errorAllowance,
+    } = useContractWrite(configAllowance);
   React.useEffect(() => {
     
     async function fetchMyAPI() {
@@ -557,12 +591,26 @@ labelPlacement="outside"
    ) || isPet ==  false  &&  isChain && isAddress &&(
     <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 ">
      <h1 className="mt-48">You Dont Own Any Pet !</h1> 
-   <button
+     {(allowance == BigInt(0)) ? (
+      <button
 className="nes-btn w-52"
+onClick={approveAsync}
+  >
+   Approval
+  
+  </button>
+
+     ) : (
+      <button
+className="nes-btn w-52"
+disabled={!mint || isLoading} onClick={mint}
   >
    Mint A Fens
   
   </button>
+
+     )}
+
   
   </div>
   
