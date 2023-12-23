@@ -7,7 +7,8 @@ import {
 	useAccount,
   } from "wagmi";
   import { useDebounce } from './useDebounce';
-  const nftAddress= '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE';
+  const nftAddress= process.env.NFT_ADDRESS;
+  const tokenAddress = process.env.TOKEN_ADDRESS;
 import {Table, TableHeader, TableColumn,Link, TableBody, TableRow, TableCell,Button ,Input} from "@nextui-org/react";
 export default function ActivityPage() {
 	const [addressFaucet, setAddressFaucet] = useState<any>(null)
@@ -19,7 +20,7 @@ export default function ActivityPage() {
 	  };
 
 		const { config : configFaucet } = usePrepareContractWrite({
-			address: `0x0F0d82B2BEd5Cd2b68300B8e2280a7112aAd3154`,
+			address: `0x${process.env.FAUCET_ADDRESS?.slice(2)}`,
 			abi: [
 				{
 					"inputs": [

@@ -5,7 +5,7 @@
 //https://www.iconfinder.com/search?q=8%20bit&price=free
 //https://www.iconfinder.com/search/icons?family=pixel-15
 //https://www.iconfinder.com/kladenko
-//https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances
+//https://sepolia.explorer.mode.network/api/v2/tokens/process.env.NFT_ADDRESS/instances
 //https://www.shutterstock.com/image-vector/8bit-pixel-characters-say-hello-94043773
 //https://www.shutterstock.com/image-vector/collection-colorful-pixel-icons-vector-illustration-2172310153
 //https://www.shutterstock.com/image-vector/colorful-butterfly-icon-pixel-art-2198218611
@@ -38,9 +38,9 @@ import {
 import { readContracts  , watchAccount} from '@wagmi/core'
 import CountDownTimer from "./CountDownTimer";
 
-  const nftAddress= '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE';
+  const nftAddress= process.env.NFT_ADDRESS;
   const MAX_ALLOWANCE = BigInt('20000000000000000000000')
-  const tokenAddress = '0x110Ac22029AbAf5e15418B95619508cAE6f1a8Ec'
+  const tokenAddress = process.env.TOKEN_ADDRESS
 
 
 export default function PetPage() {
@@ -59,7 +59,103 @@ export default function PetPage() {
   const { connect, connectors, error : errorConnect, isLoading : isLoadingConnect, pendingConnector } = useConnect()
   const [countDownseconds, setCountDownseconds] = React.useState(0);
   const { chain  } = useNetwork()
-  
+  const unwatch = watchAccount((account) => {
+
+    async function fetchMyAPI() {
+
+      let response : any= await fetch(`https://sepolia.explorer.mode.network/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
+      response = await response.json()
+      const petArr : any = [];
+      console.log(response.items)
+      if(response.items){
+        for (const element of response.items) {
+          const Info : any = await readContracts({
+            contracts: [
+              {
+                address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+                abi: nftAbi,
+                functionName: 'getPetInfo',
+                args: [element.id],
+              }
+            ],
+          })
+          if(element.owner.hash == address){
+            petArr.push({
+              value:element.id,
+              label:Info[0].result[0]
+            })
+          }
+        }
+      }
+      console.log("check",petArr)
+      
+      if(petArr[0]){
+        const pet = localStorage.getItem('pet');
+        let petId : any  = null ;
+      if (pet) {
+        setSelectedPet(pet);
+        petId = BigInt(pet)
+    
+      }else{
+        localStorage.setItem('pet',petArr[0].value);
+        petId = petArr[0].value;
+        setSelectedPet(petArr[0].value)
+      }
+      const Info : any = await readContracts({
+        contracts: [
+          {
+            address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+            abi: nftAbi,
+            functionName: 'getPetInfo',
+            args: [petId],
+          }
+        ],
+      })
+      setOwnPet(Info[0].result)
+      const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
+      setCountDownseconds(seconds)
+    
+      
+    }
+    setPetData(petArr)
+    if(petArr.length > 0 ){
+      console.log("aaaaaaaaaaaaaaa")
+      setIsPet(true)
+    }
+    if(petArr.length == 0 ){
+      console.log("bbbbbbbbbbbbb")
+      setIsPet(false)
+    }
+      let items : any = [0,1];
+      let itemArr : any = [];
+      for (const element of items) {
+        const Info : any = await readContracts({
+          contracts: [
+            {
+              address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+              abi: nftAbi,
+              functionName: 'getItemInfo',
+              args: [element],
+            }
+          ],
+        })
+        itemArr.push({
+          id:element,
+          name:Info[0].result[0],
+          price:Info[0].result[1],
+          points:Info[0].result[2],
+          timeExtension:Info[0].result[3],
+        })
+      }
+      setItemData(itemArr);
+      
+    }
+
+   fetchMyAPI()
+   if(address) {setIsAddress(true)}else{
+    setIsAddress(false);
+   };
+  })
 	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
 		useSwitchNetwork({
 			onMutate(args) {
@@ -69,7 +165,7 @@ export default function PetPage() {
 			},
 			onSuccess(data) {
         async function fetchMyAPI() {
-          let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
+          let response : any= await fetch(`https://sepolia.explorer.mode.network/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
           response = await response.json()
           let petArr : any = [];
           console.log(response.items)
@@ -78,7 +174,7 @@ export default function PetPage() {
               const Info : any = await readContracts({
                 contracts: [
                   {
-                    address: nftAddress,
+                    address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
                     abi: nftAbi,
                     functionName: 'getPetInfo',
                     args: [element.id],
@@ -110,7 +206,7 @@ export default function PetPage() {
           const Info : any = await readContracts({
             contracts: [
               {
-                address: nftAddress,
+                address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
                 abi: nftAbi,
                 functionName: 'getPetInfo',
                 args: [petId],
@@ -128,7 +224,7 @@ export default function PetPage() {
             const Info : any = await readContracts({
               contracts: [
                 {
-                  address: nftAddress,
+                  address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
                   abi: nftAbi,
                   functionName: 'getItemInfo',
                   args: [element],
@@ -160,7 +256,7 @@ export default function PetPage() {
   const debouncedSelectedItem = useDebounce(selectedItem, 500)
   const debouncedAddress = useDebounce(address, 500)
   const { config : configPetName } = usePrepareContractWrite({
-    address: nftAddress,
+    address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
     abi: nftAbi,
     functionName: "setPetName",
     args: [debouncedSelectedPet, debouncedPetName],
@@ -173,7 +269,7 @@ export default function PetPage() {
     } = useContractWrite(configPetName);
 
     const { config : configBuyAccessory } = usePrepareContractWrite({
-      address: nftAddress,
+      address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
       abi: nftAbi,
       functionName: "buyAccessory",
       args: [debouncedSelectedPet, debouncedSelectedItem],
@@ -194,7 +290,7 @@ export default function PetPage() {
       const Info : any = await readContracts({
         contracts: [
           {
-            address: nftAddress,
+            address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
             abi: nftAbi,
             functionName: 'getPetInfo',
             args: [event.target.value],
@@ -234,7 +330,7 @@ export default function PetPage() {
           const Info : any = await readContracts({
             contracts: [
               {
-                address: nftAddress,
+                address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
                 abi: nftAbi,
                 functionName: 'getPetInfo',
                 args: [BigInt(petId)],
@@ -261,28 +357,63 @@ export default function PetPage() {
 		error: prepareErrorMint,
 		isError: isPrepareErrorMint,
 	  } = usePrepareContractWrite({
-		address: nftAddress,
+		address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 		abi: nftAbi,
 		functionName: 'mint',
 	  })
-	  const { data, error, isError, write : mint } = useContractWrite(config)
+	  const { data : dataMint, error : errorMint, isError : isErrorMint, write : mint } = useContractWrite(config)
 	 
 	  const { isLoading: isLoadingMint, isSuccess  : isSuccessMint} = useWaitForTransaction({
-		hash: data?.hash,
-	  })
+		hash: dataMint?.hash,
+    onSuccess(data) {
+      // console.log('success data', data)
+       
+       let getItemInfo :any = [];
+       itemData.forEach((element:any) => {
+         if(element.id == selectedItem){
+           getItemInfo = element;
+         }
+       });
+       
+       console.log('success data', getItemInfo)
+       
+       const loadData = async() => {
+         const petId = localStorage.getItem('pet');
+         if(petId){
+           const Info : any = await readContracts({
+             contracts: [
+               {
+                 address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+                 abi: nftAbi,
+                 functionName: 'getPetInfo',
+                 args: [BigInt(petId)],
+               }
+             ],
+           })
+           console.log("pet",Info[0].result)
+           setOwnPet(Info[0].result)
+           const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
+           setCountDownseconds(seconds)
+         }
+         
+       }
+       loadData();
+       setBalloons(`Pet ${ownPet[0]} was fed ${getItemInfo.name} !` );
+     }
+    })
 
     const { data: allowance, refetch } = useContractRead({
-      address: tokenAddress,
+      address: `0x${process.env.TOKEN_ADDRESS?.slice(2)}`,
       abi: tokenAbi,
       functionName: "allowance",
-      args: [`0x${address ? address.slice(2) : ''}`, nftAddress],
+      args: [`0x${address ? address.slice(2) : ''}`, `0x${process.env.NFT_ADDRESS?.slice(2)}`],
     });
   
     const { config : configAllowance } = usePrepareContractWrite({
-    address: tokenAddress,
+    address: `0x${process.env.TOKEN_ADDRESS?.slice(2)}`,
     abi: tokenAbi,
     functionName: "approve",
-    args: [nftAddress, MAX_ALLOWANCE],
+    args: [`0x${process.env.NFT_ADDRESS?.slice(2)}`, MAX_ALLOWANCE],
     });
   
     const {
@@ -294,7 +425,7 @@ export default function PetPage() {
     
     async function fetchMyAPI() {
 
-      let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
+      let response : any= await fetch(`https://sepolia.explorer.mode.network/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
       response = await response.json()
       const petArr : any = [];
       console.log(response.items)
@@ -303,7 +434,7 @@ export default function PetPage() {
           const Info : any = await readContracts({
             contracts: [
               {
-                address: nftAddress,
+                address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
                 abi: nftAbi,
                 functionName: 'getPetInfo',
                 args: [element.id],
@@ -335,7 +466,7 @@ export default function PetPage() {
       const Info : any = await readContracts({
         contracts: [
           {
-            address: nftAddress,
+            address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
             abi: nftAbi,
             functionName: 'getPetInfo',
             args: [petId],
@@ -363,7 +494,7 @@ export default function PetPage() {
         const Info : any = await readContracts({
           contracts: [
             {
-              address: nftAddress,
+              address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
               abi: nftAbi,
               functionName: 'getItemInfo',
               args: [element],
@@ -382,12 +513,11 @@ export default function PetPage() {
       
     }
 
-   console.log("chain_id",process.env.CHAIN_ID);
    fetchMyAPI()
    if(address) {setIsAddress(true)}else{
     setIsAddress(false);
    };
-   if(chain?.id == 919){setIsChain(true)}else{
+   if(chain?.id == process.env.CHAIN_ID){setIsChain(true)}else{
     setIsChain(false)
    }
 
@@ -558,12 +688,12 @@ labelPlacement="outside"
       isChain == false  && isAddress  && (
         <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 ">
   <button
-        key={919}
-        onClick={() => switchNetwork?.(919)}
+        key={process.env.CHAIN_ID}
+        onClick={() => switchNetwork?.(process.env.CHAIN_ID  as unknown as  number)}
     className="nes-btn w-52 mt-48"
       >
        Switch Chain
-        {loadingSwingNetwork && pendingChainId === 919 && ' (switching)'}
+        {loadingSwingNetwork && pendingChainId === process.env.CHAIN_ID && ' (switching)'}
       </button>
       <span>{errorSwitchNetwork && errorSwitchNetwork.message}</span>
         </div>
@@ -588,7 +718,7 @@ labelPlacement="outside"
 
     {errorConnect && <div>{errorConnect.message}</div>}
   </div>
-   ) || isPet ==  false  &&  isChain && isAddress &&(
+   ) || isPet ==  false  &&  isChain && isAddress && (
     <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 ">
      <h1 className="mt-48">You Dont Own Any Pet !</h1> 
      {(allowance == BigInt(0)) ? (

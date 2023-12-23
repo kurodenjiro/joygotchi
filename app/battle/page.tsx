@@ -13,8 +13,7 @@ import {
   import { nftAbi , tokenAbi } from '../../abi';
   import { useDebounce } from './useDebounce'
   import {Image} from "@nextui-org/react";
-  const nftAddress= '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE';
-  const tokenAddress = '0x110Ac22029AbAf5e15418B95619508cAE6f1a8Ec'
+  const nftAddress= `0x${process.env.NFT_ADDRESS?.slice(2)}`;
   //https://github.com/ChangoMan/nextjs-ethereum-starter/blob/main/frontend/pages/index.tsx
 export default function Battle() {
 
@@ -29,7 +28,7 @@ export default function Battle() {
 	const unwatch = watchAccount((account) => {
 		async function fetchMyAPI() {
 	
-		//   let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
+		//   let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/process.env.TOKEN_ADDRESS/instances')
 		//   response = await response.json()
 
 		//   setOwnPet(response.items[0].id)
@@ -42,7 +41,7 @@ export default function Battle() {
 	})
 	
 	const { config : configAttack } = usePrepareContractWrite({
-		address: nftAddress,
+		address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 		abi: nftAbi,
 		functionName: "attack",
 		args: [debouncedOwnPetId , debouncedSelectedPet],
@@ -61,7 +60,7 @@ export default function Battle() {
 			  list.push(`You Pet #${debouncedOwnPetId} attacked #${debouncedSelectedPet}`)
 			  setActivity(list)
 			  async function fetchMyAPI() {
-				let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
+				let response : any= await fetch(`https://sepolia.explorer.mode.network/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
 				response = await response.json()
 				let petArr : any = [];
 				if(response.items){
@@ -69,7 +68,7 @@ export default function Battle() {
 					const Info : any = await readContracts({
 					  contracts: [
 						{
-						  address: nftAddress,
+						  address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 						  abi: nftAbi,
 						  functionName: 'getPetInfo',
 						  args: [element.id],
@@ -89,7 +88,7 @@ export default function Battle() {
 					const Info : any = await readContracts({
 						contracts: [
 						  {
-							address: nftAddress,
+							address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 							abi: nftAbi,
 							functionName: 'getPetInfo',
 							args: [BigInt(pet)],
@@ -114,7 +113,7 @@ const onAttack = ( petId : any )=> {
 //kill
 	
 	const { config : configKill } = usePrepareContractWrite({
-		address: nftAddress,
+		address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 		abi: nftAbi,
 		functionName: "kill",
 		args: [debouncedSelectedPet,debouncedOwnPetId],
@@ -134,7 +133,7 @@ const onAttack = ( petId : any )=> {
 			  const list = activity;
 			  list.push(`You Pet ${debouncedOwnPetId} killed ${debouncedSelectedPet}`)
 			  async function fetchMyAPI() {
-				let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
+				let response : any= await fetch(`https://sepolia.explorer.mode.network/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
 				response = await response.json()
 				let petArr : any = [];
 				if(response.items){
@@ -142,7 +141,7 @@ const onAttack = ( petId : any )=> {
 					const Info : any = await readContracts({
 					  contracts: [
 						{
-						  address: nftAddress,
+						  address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 						  abi: nftAbi,
 						  functionName: 'getPetInfo',
 						  args: [element.id],
@@ -162,7 +161,7 @@ const onAttack = ( petId : any )=> {
 					const Info : any = await readContracts({
 						contracts: [
 						  {
-							address: nftAddress,
+							address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 							abi: nftAbi,
 							functionName: 'getPetInfo',
 							args: [BigInt(pet)],
@@ -189,7 +188,7 @@ const onKill = ( petId : any )=> {
 
 	useEffect(() => {
 		async function fetchMyAPI() {
-		  let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
+		  let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/process.env.TOKEN_ADDRESS/instances')
 		  response = await response.json()
 		  let petArr : any = [];
 		  if(response.items){
@@ -197,7 +196,7 @@ const onKill = ( petId : any )=> {
 			  const Info : any = await readContracts({
 				contracts: [
 				  {
-					address: nftAddress,
+					address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 					abi: nftAbi,
 					functionName: 'getPetInfo',
 					args: [element.id],
@@ -217,7 +216,7 @@ const onKill = ( petId : any )=> {
 			  const Info : any = await readContracts({
 				  contracts: [
 					{
-					  address: nftAddress,
+					  address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 					  abi: nftAbi,
 					  functionName: 'getPetInfo',
 					  args: [BigInt(pet)],

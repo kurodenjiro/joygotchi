@@ -15,26 +15,26 @@ import {
 	useSwitchNetwork
   } from "wagmi";
   
-const ADDRESS= '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE';
+const nftAddress= process.env.NFT_ADDRESS;
 const MAX_ALLOWANCE = BigInt('20000000000000000000000')
-const tokenAddress = '0x110Ac22029AbAf5e15418B95619508cAE6f1a8Ec'
+const tokenAddress = process.env.TOKEN_ADDRESS
 //https://wagmi.sh/examples/contract-write
 export default function Home() {
 //check allowrance
 const { address, connector, isConnected } = useAccount()
 const { connect, connectors , pendingConnector } = useConnect()
 const { data: allowance, refetch } = useContractRead({
-    address: tokenAddress,
+    address: `0x${process.env.TOKEN_ADDRESS?.slice(2)}`,
     abi: tokenAbi,
     functionName: "allowance",
-    args: [`0x${address ? address.slice(2) : ''}`, ADDRESS],
+    args: [`0x${address ? address.slice(2) : ''}`, `0x${process.env.NFT_ADDRESS?.slice(2)}`],
   });
 
   const { config : configAllowance } = usePrepareContractWrite({
-	address: tokenAddress,
+	address: `0x${process.env.TOKEN_ADDRESS?.slice(2)}`,
 	abi: tokenAbi,
 	functionName: "approve",
-	args: [ADDRESS, MAX_ALLOWANCE],
+	args: [`0x${process.env.NFT_ADDRESS?.slice(2)}`, MAX_ALLOWANCE],
   });
 
   const {
@@ -51,7 +51,7 @@ const { data: allowance, refetch } = useContractRead({
 		error: prepareError,
 		isError: isPrepareError,
 	  } = usePrepareContractWrite({
-		address: '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE',
+		address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 		abi: nftAbi,
 		functionName: 'mint',
 	  })
@@ -79,7 +79,7 @@ const { data: allowance, refetch } = useContractRead({
 			  }
 		  })
 		React.useEffect(() => {
-			if(chain?.id == 919){
+			if(chain?.id == process.env.CHAIN_ID){
 			setIsClient(true);
 			}
 		},[])
@@ -110,7 +110,7 @@ const { data: allowance, refetch } = useContractRead({
 </button>
    ):(
 	 <button type="button"  disabled={!mint || isLoading} onClick={mint} className="nes-btn w-52" >
-	 Mint A Friend
+	 Mint A Fens
  </button>
 	 
    )
@@ -118,12 +118,12 @@ const { data: allowance, refetch } = useContractRead({
 ) : (
 	<>
 	<button
-          key={919}
-          onClick={() => switchNetwork?.(919)}
+          key={process.env.CHAIN_ID}
+          onClick={() => switchNetwork?.(process.env.CHAIN_ID as unknown as number )}
 		  className="nes-btn w-52"
         >
        switch to Mode Testnet 
-         {loadingSwingNetwork && pendingChainId === 919 && '(switching)'} 
+         {loadingSwingNetwork && pendingChainId === process.env.CHAIN_ID && '(switching)'} 
         </button>
 		<div><span className="text-red-400">{errorSwitchNetwork && errorSwitchNetwork.message}</span></div>
 		</>

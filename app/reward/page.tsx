@@ -10,7 +10,7 @@ import {
 	useAccount,
   } from "wagmi";
   import { useDebounce } from './useDebounce'
-const nftAddress= '0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE';
+
 
 export default function RewardPage() {
 	const [ownPet, setOwnPet] = useState<any>(null)
@@ -18,7 +18,7 @@ const [ownPetId, setOwnPetId] = useState<any>(null)
 const debouncedOwnPetId = useDebounce(ownPetId, 500)
 	useEffect(() => {
 		async function fetchMyAPI() {
-		  let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
+		  let response : any= await fetch(`https://sepolia.explorer.mode.network/api/v2/tokens/${process.env.TOKEN_ADDRESS}/instances`)
 		  response = await response.json()
 
 		  const pet = localStorage.getItem('pet');
@@ -28,7 +28,7 @@ const debouncedOwnPetId = useDebounce(ownPetId, 500)
 		  const Info : any = await readContracts({
 			contracts: [
 			  {
-				address: nftAddress,
+				address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 				abi: nftAbi,
 				functionName: 'getPetInfo',
 				args: [petId],
@@ -46,7 +46,7 @@ const debouncedOwnPetId = useDebounce(ownPetId, 500)
 
 
 	  const { config : configRedeem } = usePrepareContractWrite({
-		address: nftAddress,
+		address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 		abi: nftAbi,
 		functionName: "redeem",
 		args: [debouncedOwnPetId ],
@@ -57,12 +57,13 @@ const debouncedOwnPetId = useDebounce(ownPetId, 500)
 		  writeAsync: setRedeemAsync,
 		  error:errorRedeem,
 		} = useContractWrite(configRedeem);
+
+		
 		const { isLoading : isLoadingAttack} = useWaitForTransaction({
 			hash: RedeemData?.hash,
 			onSuccess(data) {
 				async function fetchMyAPI() {
-					let response : any= await fetch('https://sepolia.explorer.mode.network/api/v2/tokens/0x294041aC4ed65f7cba6B2182C2c10193fedDB9fE/instances')
-					response = await response.json()
+					
 		  
 					const pet = localStorage.getItem('pet');
 					let petId : any  = null ;
@@ -71,7 +72,7 @@ const debouncedOwnPetId = useDebounce(ownPetId, 500)
 					const Info : any = await readContracts({
 					  contracts: [
 						{
-						  address: nftAddress,
+						  address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 						  abi: nftAbi,
 						  functionName: 'getPetInfo',
 						  args: [petId],
