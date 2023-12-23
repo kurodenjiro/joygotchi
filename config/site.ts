@@ -13,16 +13,16 @@ export const siteConfig = {
 			href: "/pet",
 		},
 		{
-			label: "Leader Board",
-			href: "/leaderboard",
+			label: "Battle",
+			href: "/battle",
 		},
 		{
 			label: "Reward",
 			href: "/reward",
 		},
 		{
-			label: "Activity",
-			href: "/activity",
+			label: "Faucet",
+			href: "/Faucet",
 		},
 	],
 	navMenuItems: [
