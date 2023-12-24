@@ -38,7 +38,7 @@ export default function RootLayout({
 			<body
 				className={`min-h-screen bg-background ${Silkscreen.className} antialiased`}
 			>
-				<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+				<Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
 					<div className="relative flex flex-col h-screen">
 						<Navbar />
 						<main className="container mx-auto max-w-7xl  flex-grow">
