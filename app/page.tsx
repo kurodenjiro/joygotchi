@@ -143,8 +143,11 @@ const { data: allowance, refetch } = useContractRead({
           </div>
         </div>
       )}
-      {(isPrepareError || isError) && (
+      {/* {(isPrepareError || isError) && (
         <div><span className="text-red-400">Error: {(prepareError || error)?.message}</span></div>
+      )} */}
+	        {(isError) && (
+        <div><span className="text-red-400">Error: {error?.message}</span></div>
       )}
 			<div className="flex gap-3">
 		
