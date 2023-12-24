@@ -2,8 +2,10 @@
 import React from "react";
 import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
-import {Image} from "@nextui-org/react";
+import {Image,Link} from "@nextui-org/react";
 import { nftAbi , tokenAbi } from '../abi';
+import { button as buttonStyles } from "@nextui-org/theme";
+
 import {
 	usePrepareContractWrite,
 	useContractWrite,
@@ -166,6 +168,14 @@ const { data: allowance, refetch } = useContractRead({
 					<GithubIcon size={20} />
 					GitHub
 				</Link> */}
+				<Link
+					isExternal
+					className={buttonStyles({ variant: "bordered", radius: "full" })}
+					href='https://mode-faucet.vercel.app/'
+					>
+					
+					Faucet ETH Testnet Testnet
+				</Link> 
 			</div>
 
 	
