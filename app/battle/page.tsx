@@ -188,7 +188,7 @@ const onKill = ( petId : any )=> {
 
 	useEffect(() => {
 		async function fetchMyAPI() {
-		  let response : any= await fetch('${process.env.EXPLORER_URL}/api/v2/tokens/process.env.TOKEN_ADDRESS/instances')
+		  let response : any= await fetch(`${process.env.EXPLORER_URL}/api/v2/tokens/process.env.TOKEN_ADDRESS/instances`)
 		  response = await response.json()
 		  let petArr : any = [];
 		  if(response.items){
