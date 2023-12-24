@@ -668,7 +668,7 @@ labelPlacement="outside"
 </div>
 <div className="grid grid-cols-2 gap-4  p-6">
 {itemData  && itemData.map((item:any)=>(
-<Tooltip key={"default"}  color={"default"} content={`Feed 1 ${item.name} : ${parseInt(item.points).toFixed(2).toString()} PTS & ${(parseInt(item.timeExtension)/3600/24).toFixed(2).toString()} TOD with ${(parseInt(item.price)/1e18).toString()} Joy`} className="capitalize">
+<Tooltip key={"default"}  color={"default"} content={`Feed 1 ${item.name} : ${parseInt(item.points).toFixed(2).toString()} PTS & ${(parseInt(item.timeExtension)/3600/24).toFixed(2).toString()} TOD with ${(parseInt(item.price)).toString(2)} Joy`} className="capitalize">
   <button type="button" className="nes-btn w-full" onClick={()=>onBuyAccessory(item.id)}> {item.name} </button>
 </Tooltip>
 ))}
