@@ -176,6 +176,13 @@ const { data: allowance, refetch } = useContractRead({
 					
 					Faucet ETH Testnet Testnet
 				</Link> 
+				<Link
+					isExternal
+					className={buttonStyles({ variant: "bordered", radius: "full" })}
+					href="/faucet"
+				>
+					Faucet $ Joy token
+				</Link>
 			</div>
 
 	
