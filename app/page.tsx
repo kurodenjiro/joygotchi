@@ -170,11 +170,18 @@ const { data: allowance, refetch } = useContractRead({
 				<Link
 					isExternal
 					className={buttonStyles({ variant: "bordered", radius: "full" })}
-					href='https://mode-faucet.vercel.app/'
+					href='https://docs.mode.network/mode-developer-mainnet/bridging-to-mode-dev-mainnet'
 					>
 					
-					Bridge ETH 
-				</Link> 
+					Bridging to Mode Dev Mainnet
+				</Link>
+				<Link
+					isExternal
+					href="/faucet"
+					className={buttonStyles({ variant: "bordered", radius: "full" })}
+				>
+					Faucet $Joy Toen
+				</Link>
 			</div>
 
 	
