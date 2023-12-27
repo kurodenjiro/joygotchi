@@ -26,18 +26,6 @@ export default function Battle() {
 	const debouncedSelectedPet = useDebounce(selectedPet, 500)
 	const debouncedOwnPetId = useDebounce(ownPetId, 500)
 	const unwatch = watchAccount((account) => {
-		async function fetchMyAPI() {
-	
-		//   let response : any= await fetch('${process.env.EXPLORER_URL}/api/tokens/process.env.TOKEN_ADDRESS/instances')
-		//   response = await response.json()
-
-		//   setOwnPet(response.items[0].id)
-		//   const list = activity;
-		//   list.push(`You have changned Pet #${response.items[0].id} `)
-		//   setActivity(list)
-	   
-		}
-		fetchMyAPI()
 	})
 	
 	const { config : configAttack } = usePrepareContractWrite({
