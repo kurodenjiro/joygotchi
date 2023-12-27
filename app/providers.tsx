@@ -6,6 +6,28 @@ import { useRouter } from 'next/navigation'
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { ThemeProviderProps } from "next-themes/dist/types";
 
+
+import { Chain } from '@wagmi/core'
+ 
+export const vicTestnet = {
+  id: 98,
+  name: 'Vic',
+  network: 'viction',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'tomo',
+    symbol: 'TOMO',
+  },
+  rpcUrls: {
+    public: { http: ['https://rpc-testnet.viction.xyz'] },
+    default: { http: ['https://rpc-testnet.viction.xyz'] },
+  },
+  blockExplorers: {
+    etherscan: { name: 'Vicscan', url: 'https://testnet.vicscan.xyz/' },
+    default: { name: 'Vicscan', url: 'https://testnet.vicscan.xyz/' },
+  },
+} as const satisfies Chain
+
 import {
 	RainbowKitProvider,
 	getDefaultWallets,
@@ -17,15 +39,13 @@ import {
 	ledgerWallet,
   } from '@rainbow-me/rainbowkit/wallets';
   import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-  import {
-	modeTestnet
-  } from 'wagmi/chains';
+  
   import { publicProvider } from 'wagmi/providers/public';
   
   const { chains, publicClient, webSocketPublicClient } = configureChains(
 	[
-	  modeTestnet,
-	  ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [modeTestnet] : []),
+		vicTestnet,
+	  ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [vicTestnet] : []),
 	],
 	[publicProvider()]
   );
