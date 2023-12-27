@@ -28,7 +28,7 @@ export default function Battle() {
 	const unwatch = watchAccount((account) => {
 		async function fetchMyAPI() {
 	
-		//   let response : any= await fetch('${process.env.EXPLORER_URL}/api/v2/tokens/process.env.TOKEN_ADDRESS/instances')
+		//   let response : any= await fetch('${process.env.EXPLORER_URL}/api/tokens/process.env.TOKEN_ADDRESS/instances')
 		//   response = await response.json()
 
 		//   setOwnPet(response.items[0].id)
@@ -60,7 +60,7 @@ export default function Battle() {
 			  list.push(`You Pet #${debouncedOwnPetId} attacked #${debouncedSelectedPet}`)
 			  setActivity(list)
 			  async function fetchMyAPI() {
-				let response : any= await fetch(`${process.env.EXPLORER_URL}/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
+				let response : any= await fetch(`${process.env.EXPLORER_URL}/api/tokens/${process.env.NFT_ADDRESS}/instances`)
 				response = await response.json()
 				let petArr : any = [];
 				if(response.items){
@@ -133,7 +133,7 @@ const onAttack = ( petId : any )=> {
 			  const list = activity;
 			  list.push(`You Pet ${debouncedOwnPetId} killed ${debouncedSelectedPet}`)
 			  async function fetchMyAPI() {
-				let response : any= await fetch(`${process.env.EXPLORER_URL}/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
+				let response : any= await fetch(`${process.env.EXPLORER_URL}/api/tokens/${process.env.NFT_ADDRESS}/instances`)
 				response = await response.json()
 				let petArr : any = [];
 				if(response.items){
@@ -188,7 +188,7 @@ const onKill = ( petId : any )=> {
 
 	useEffect(() => {
 		async function fetchMyAPI() {
-		  let response : any= await fetch(`${process.env.EXPLORER_URL}/api/v2/tokens/${process.env.NFT_ADDRESS}/instances`)
+		  let response : any= await fetch(`${process.env.EXPLORER_URL}/api/tokens/${process.env.NFT_ADDRESS}/instances`)
 		  response = await response.json()
 		  let petArr : any = [];
 		  if(response.items){
