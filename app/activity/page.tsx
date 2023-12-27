@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { readContracts  , watchAccount} from '@wagmi/core'
 import {Table, TableHeader, TableColumn,Link, TableBody, TableRow, TableCell,Button ,Input} from "@nextui-org/react";
 import { nftAbi , tokenAbi } from '../../abi';
+import { ethers } from "ethers";
 
 export default function ActivityPage() {
 	const [activity, setActivity] = useState<any>(null)
@@ -13,9 +14,9 @@ export default function ActivityPage() {
 		  console.log(response);
 		  let acitivityArr = [];
 		  for (const element of response.data) {
-			if (element.result == "success") {
-			
-				if(element.method == "buyAccessory"){
+			if (element.status == "success") {
+			console.log("method",ethers.utils.toUtf8String(element.method))
+				if(ethers.utils.toUtf8String(element.method) == "buyAccessory"){
 					const itemInfo : any = await readContracts({
 						contracts: [
 						  {
@@ -46,7 +47,7 @@ export default function ActivityPage() {
 					})
 
 				}
-				if(element.method == "mint"){
+				if(ethers.utils.toUtf8String(element.method)  == "mint"){
 					
 					acitivityArr.push({
 						pet:"A new Pet",
@@ -55,7 +56,7 @@ export default function ActivityPage() {
 						log:`Minted`
 					})
 				}
-				if(element.method == "redeem"){
+				if(ethers.utils.toUtf8String(element.method) == "redeem"){
 					const petInfo : any = await readContracts({
 						contracts: [
 						  {
@@ -73,7 +74,7 @@ export default function ActivityPage() {
 						log:`Redeemed`
 					})
 				}
-				if(element.method == "attack"){
+				if(ethers.utils.toUtf8String(element.method)  == "attack"){
 					const petAttack : any = await readContracts({
 						contracts: [
 						  {
@@ -101,7 +102,7 @@ export default function ActivityPage() {
 						log:`${petWasAttack[0].result[0]}`
 					})
 				}
-				if(element.method == "kill"){
+				if(ethers.utils.toUtf8String(element.method) == "kill"){
 					const petAttack : any = await readContracts({
 						contracts: [
 						  {
@@ -137,7 +138,7 @@ export default function ActivityPage() {
 		  
 		}
 		fetchMyAPI()
-	})
+	},[])
 
 	return (
 		<>
