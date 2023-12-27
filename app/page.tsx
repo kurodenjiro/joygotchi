@@ -171,10 +171,10 @@ const { data: allowance, refetch } = useContractRead({
 				<Link
 					isExternal
 					className={buttonStyles({ variant: "bordered", radius: "full" })}
-					href='https://mode-faucet.vercel.app/'
+					href='https://faucet.testnet.tomochain.com/'
 					>
 					
-					Faucet ETH Testnet
+					Faucet Tomo Testnet
 				</Link> 
 				<Link
 					isExternal
