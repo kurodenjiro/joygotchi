@@ -12,7 +12,7 @@ export default function ActivityPage() {
 		  response = await response.json()
 		  console.log(response);
 		  let acitivityArr = [];
-		  for (const element of response.items) {
+		  for (const element of response.data) {
 			if (element.result == "success") {
 			
 				if(element.method == "buyAccessory"){
