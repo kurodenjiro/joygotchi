@@ -54,6 +54,7 @@ export default function PetPage() {
   const { connect, connectors, error : errorConnect, isLoading : isLoadingConnect, pendingConnector } = useConnect()
   const [countDownseconds, setCountDownseconds] = React.useState(0);
   const { chain  } = useNetwork()
+
   const unwatch = watchAccount((account) => {
 
     async function fetchMyAPI() {
@@ -245,7 +246,6 @@ export default function PetPage() {
   const debouncedPetName = useDebounce(petName, 500)
   const debouncedSelectedPet = useDebounce(selectedPet, 500)
   const debouncedSelectedItem = useDebounce(selectedItem, 500)
-  const debouncedAddress = useDebounce(address, 500)
 
 
   const { config : configAddItem } = usePrepareContractWrite({
@@ -263,6 +263,20 @@ export default function PetPage() {
 
 
 
+    const { config : configEnableTrading } = usePrepareContractWrite({
+      address: `0x${process.env.TOKEN_ADDRESS?.slice(2)}`,
+      abi: tokenAbi,
+      functionName: "enableTrading"
+      });
+    
+      const {
+        data: enableTradingResult,
+        writeAsync: setEnableTradingAsync,
+        error:errorEnableTrading,
+      } = useContractWrite(configEnableTrading);
+  
+
+
   const { config : configPetName } = usePrepareContractWrite({
     address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
     abi: nftAbi,
@@ -270,6 +284,7 @@ export default function PetPage() {
     args: [debouncedSelectedPet, debouncedPetName],
     });
   
+    
     const {
       data: petNameResult,
       writeAsync: setPetNameAsync,
@@ -687,7 +702,7 @@ labelPlacement="outside"
   <button type="button" className="nes-btn w-full" onClick={()=>onBuyAccessory(item.id)}> {item.name} </button>
 </Tooltip>
 ))}
- {/* <button type="button" className="nes-btn w-full" onClick={setAddItemAsync}> Create item</button> */}
+ {/* <button type="button" className="nes-btn w-full" onClick={setEnableTradingAsync}> Enable Trading</button> */}
 </div>
 
 </>
