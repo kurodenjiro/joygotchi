@@ -171,7 +171,7 @@ const { data: allowance, refetch } = useContractRead({
 				<Link
 					isExternal
 					className={buttonStyles({ variant: "bordered", radius: "full" })}
-					href='https://faucet.testnet.tomochain.com/'
+					href='https://faucet-testnet.viction.xyz/'
 					>
 					
 					Faucet Tomo Testnet

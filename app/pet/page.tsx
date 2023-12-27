@@ -246,6 +246,23 @@ export default function PetPage() {
   const debouncedSelectedPet = useDebounce(selectedPet, 500)
   const debouncedSelectedItem = useDebounce(selectedItem, 500)
   const debouncedAddress = useDebounce(address, 500)
+
+
+  const { config : configAddItem } = usePrepareContractWrite({
+    address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+    abi: nftAbi,
+    functionName: "createItem",
+    args: ["Beef",BigInt("2000"),BigInt("1000000000000000"), BigInt("28800")],
+    });
+  
+    const {
+      data: addItemResult,
+      writeAsync: setAddItemAsync,
+      error:errorAddItem,
+    } = useContractWrite(configAddItem);
+
+
+
   const { config : configPetName } = usePrepareContractWrite({
     address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
     abi: nftAbi,
@@ -406,6 +423,12 @@ export default function PetPage() {
       writeAsync: approveAsync,
       error:errorAllowance,
     } = useContractWrite(configAllowance);
+
+
+
+
+    
+
   React.useEffect(() => {
     if(address) {setIsAddress(true)}else{
       setIsAddress(false);
@@ -656,7 +679,7 @@ labelPlacement="outside"
   <Progress size="sm" color="default" aria-label="" value={100} /></div>
 
   <div className="col-start-1 col-end-3 ">Reward</div>
-<div className="col-end-7 col-span-1 ">{ownPet ? ownPet[8].toString() : ''} ETH</div>
+<div className="col-end-7 col-span-1 ">{ownPet ? ownPet[8].toString() : ''} TOMO</div>
 </div>
 <div className="grid grid-cols-2 gap-4  p-6">
 {itemData  && itemData.map((item:any)=>(
@@ -664,6 +687,7 @@ labelPlacement="outside"
   <button type="button" className="nes-btn w-full" onClick={()=>onBuyAccessory(item.id)}> {item.name} </button>
 </Tooltip>
 ))}
+ {/* <button type="button" className="nes-btn w-full" onClick={setAddItemAsync}> Create item</button> */}
 </div>
 
 </>

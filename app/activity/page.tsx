@@ -8,7 +8,7 @@ export default function ActivityPage() {
 	const [activity, setActivity] = useState<any>(null)
 	useEffect(() => {
 		async function fetchMyAPI() {
-		  let response : any= await fetch(`${process.env.EXPLORER_URL}/api/addresses/${process.env.NFT_ADDRESS}/transactions`)
+		  let response : any= await fetch(`${process.env.EXPLORER_URL}/api/transaction/list?account=${process.env.NFT_ADDRESS}`)
 		  response = await response.json()
 		  console.log(response);
 		  let acitivityArr = [];

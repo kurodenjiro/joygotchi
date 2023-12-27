@@ -103,7 +103,7 @@ const debouncedOwnPetId = useDebounce(ownPetId, 500)
       </CardHeader>
       <Divider/>
       <CardBody>
-		<h1>RECEIVE:{ownPet && ownPet[8].toString()} ETH</h1>
+		<h1>RECEIVE:{ownPet && ownPet[8].toString()} TOMO</h1>
       </CardBody>
       <Divider/>
     </Card>
