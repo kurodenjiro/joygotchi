@@ -3,27 +3,27 @@ import React, { useState, useEffect } from 'react';
 import { readContracts  , watchAccount} from '@wagmi/core'
 import {Table, TableHeader, TableColumn,Link, TableBody, TableRow, TableCell,Button ,Input} from "@nextui-org/react";
 import { nftAbi , tokenAbi } from '../../abi';
-import { ethers } from "ethers";
-
+const InputDataDecoder = require('ethereum-input-data-decoder');
+const decoder = new InputDataDecoder(nftAbi);
 export default function ActivityPage() {
 	const [activity, setActivity] = useState<any>(null)
 	useEffect(() => {
 		async function fetchMyAPI() {
 		  let response : any= await fetch(`${process.env.EXPLORER_URL}/api/transaction/list?account=${process.env.NFT_ADDRESS}`)
 		  response = await response.json()
-		  console.log(response);
 		  let acitivityArr = [];
 		  for (const element of response.data) {
+			console.log("method",element.status)
 			if (element.status == "success") {
-			console.log("method",ethers.utils.toUtf8String(element.method))
-				if(ethers.utils.toUtf8String(element.method) == "buyAccessory"){
+			const data = decoder.decodeData(element.input);
+				if(data.method == "buyAccessory"){
 					const itemInfo : any = await readContracts({
 						contracts: [
 						  {
 							address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 							abi: nftAbi,
 							functionName: 'getItemInfo',
-							args: [element.decoded_input.parameters[1].value],
+							args: [data.inputs[1]],
 						  }
 						],
 					  })
@@ -34,7 +34,7 @@ export default function ActivityPage() {
 							address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 							abi: nftAbi,
 							functionName: 'getPetInfo',
-							args: [element.decoded_input.parameters[0].value],
+							args: [data.inputs[0]],
 						  }
 						],
 					  })
@@ -47,7 +47,7 @@ export default function ActivityPage() {
 					})
 
 				}
-				if(ethers.utils.toUtf8String(element.method)  == "mint"){
+				if(data.method  == "mint"){
 					
 					acitivityArr.push({
 						pet:"A new Pet",
@@ -56,14 +56,14 @@ export default function ActivityPage() {
 						log:`Minted`
 					})
 				}
-				if(ethers.utils.toUtf8String(element.method) == "redeem"){
+				if(data.method == "redeem"){
 					const petInfo : any = await readContracts({
 						contracts: [
 						  {
 							address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 							abi: nftAbi,
 							functionName: 'getPetInfo',
-							args: [element.decoded_input.parameters[0].value],
+							args: [data.inputs[0]],
 						  }
 						],
 					  })
@@ -74,14 +74,14 @@ export default function ActivityPage() {
 						log:`Redeemed`
 					})
 				}
-				if(ethers.utils.toUtf8String(element.method)  == "attack"){
+				if(data.method  == "attack"){
 					const petAttack : any = await readContracts({
 						contracts: [
 						  {
 							address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 							abi: nftAbi,
 							functionName: 'getPetInfo',
-							args: [element.decoded_input.parameters[0].value],
+							args: [data.inputs[0]],
 						  }
 						],
 					  })
@@ -91,7 +91,7 @@ export default function ActivityPage() {
 							address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 							abi: nftAbi,
 							functionName: 'getPetInfo',
-							args: [element.decoded_input.parameters[1].value],
+							args: [data.inputs[1]],
 						  }
 						],
 					  })
@@ -102,14 +102,14 @@ export default function ActivityPage() {
 						log:`${petWasAttack[0].result[0]}`
 					})
 				}
-				if(ethers.utils.toUtf8String(element.method) == "kill"){
+				if(data.method == "kill"){
 					const petAttack : any = await readContracts({
 						contracts: [
 						  {
 							address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 							abi: nftAbi,
 							functionName: 'getPetInfo',
-							args: [element.decoded_input.parameters[0].value],
+							args: [data.inputs[0]],
 						  }
 						],
 					  })
@@ -119,7 +119,7 @@ export default function ActivityPage() {
 							address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 							abi: nftAbi,
 							functionName: 'getPetInfo',
-							args: [element.decoded_input.parameters[1].value],
+							args: [data.inputs[1]],
 						  }
 						],
 					  })
