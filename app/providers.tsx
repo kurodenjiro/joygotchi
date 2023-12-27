@@ -30,16 +30,16 @@ import {
 	[publicProvider()]
   );
   
-  const projectId = 'YOUR_PROJECT_ID';
+  const projectId = 'ea8370ab6881883427566262faaf8556';
   
   const { wallets } = getDefaultWallets({
-	appName: 'RainbowKit demo',
+	appName: 'JoyGotchi',
 	projectId,
 	chains,
   });
   
   const demoAppInfo = {
-	appName: 'Rainbowkit Demo',
+	appName: 'JoyGotchi',
   };
   
   const connectors = connectorsForWallets([
