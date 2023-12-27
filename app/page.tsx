@@ -174,7 +174,7 @@ const { data: allowance, refetch } = useContractRead({
 					href='https://mode-faucet.vercel.app/'
 					>
 					
-					Faucet ETH Testnet Testnet
+					Faucet ETH Testnet
 				</Link> 
 				<Link
 					isExternal

@@ -10,7 +10,7 @@ import {
   const nftAddress= process.env.NFT_ADDRESS;
   const tokenAddress = process.env.TOKEN_ADDRESS;
 import {Table, TableHeader, TableColumn,Link, TableBody, TableRow, TableCell,Button ,Input} from "@nextui-org/react";
-export default function ActivityPage() {
+export default function FaucetPage() {
 	const [addressFaucet, setAddressFaucet] = useState<any>(null)
 	const debouncedAddressFaucet = useDebounce(addressFaucet, 500)
 

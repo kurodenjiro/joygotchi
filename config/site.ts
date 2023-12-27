@@ -21,8 +21,8 @@ export const siteConfig = {
 			href: "/reward",
 		},
 		{
-			label: "Faucet",
-			href: "/Faucet",
+			label: "Activity",
+			href: "/activity",
 		},
 	],
 	navMenuItems: [
