@@ -10,7 +10,7 @@ import { ThemeProviderProps } from "next-themes/dist/types";
 import { Chain } from '@wagmi/core'
  
 export const vicTestnet = {
-  id: 98,
+  id: 89,
   name: 'Vic',
   network: 'viction',
   nativeCurrency: {
