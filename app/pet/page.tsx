@@ -47,8 +47,10 @@ export default function PetPage() {
   const [selectedPet, setSelectedPet] = React.useState<any>(null)
   const [ownPet, setOwnPet] = React.useState<any>(null)
   const [selectedItem, setSelectedItem] = React.useState<any>(null)
+  const [isApprove, setIsApprove] = React.useState(false)
   const [balloons, setBalloons] = React.useState<any>(null)
   const [petName, setPetName] = React.useState<any>(null)
+  const [connectorsData, setConnectors] = React.useState<any>([])
   const { address, connector, isConnected } = useAccount()
 
   const { connect, connectors, error : errorConnect, isLoading : isLoadingConnect, pendingConnector } = useConnect()
@@ -56,10 +58,12 @@ export default function PetPage() {
   const { chain  } = useNetwork()
 
   const unwatch = watchAccount((account) => {
-
     async function fetchMyAPI() {
-      if(address) {setIsAddress(true)}else{
-        setIsAddress(false);
+      if(address) {
+        setIsAddress(true)}
+        else{
+        
+          setIsAddress(false);
        };
       let response : any= await fetch(`${process.env.EXPLORER_URL}/api/tokentx/nft/list?tokenAddress=${process.env.NFT_ADDRESS}`)
       response = await response.json()
@@ -434,18 +438,34 @@ export default function PetPage() {
     });
   
     const {
-      data: writeContractResult,
+      data: approveResult,
       writeAsync: approveAsync,
       error:errorAllowance,
     } = useContractWrite(configAllowance);
 
 
-
+    const { isLoading : isLoadingApprove} = useWaitForTransaction({
+      hash: approveResult?.hash,
+        onSuccess(data) {
+          setIsApprove(true);
+        }
+      })
 
     
 
   React.useEffect(() => {
-    if(address) {setIsAddress(true)}else{
+    if(connectors){
+      setConnectors(connectors)
+    }
+    if(allowance){
+      if(allowance >= BigInt(20000)){
+        setIsApprove(true)
+      }
+    }
+    if(address) {
+      setIsAddress(true)
+    }
+    else{
       setIsAddress(false);
      };
      if(chain?.id == process.env.CHAIN_ID){setIsChain(true)}else{
@@ -479,7 +499,6 @@ export default function PetPage() {
           }
         }
       }
-      console.log('check',petArr[0])
       if(petArr[0]){
         const pet = localStorage.getItem('pet');
         let petId : any  = null ;
@@ -694,7 +713,7 @@ labelPlacement="outside"
   <Progress size="sm" color="default" aria-label="" value={100} /></div>
 
   <div className="col-start-1 col-end-3 ">Reward</div>
-<div className="col-end-7 col-span-1 ">{ownPet ? ownPet[8].toString() : ''} TOMO</div>
+<div className="col-end-8 col-span-2 ">{ownPet ? ownPet[8].toString() : ''} Vic</div>
 </div>
 <div className="grid grid-cols-2 gap-4  p-6">
 {itemData  && itemData.map((item:any)=>(
@@ -723,9 +742,10 @@ labelPlacement="outside"
     )
 	) || isAddress == false && (
     <div className="mt-3">
-    {connectors.map((connector) => (
+      <div className="flex flex-col items-center justify-center gap-3 pt-20 ">
+    {connectorsData.map((connector:any) => (
       
-      <button
+         <button
       className="nes-btn w-48  m-2 "
         disabled={!connector.ready}
         key={connector.id}
@@ -736,15 +756,17 @@ labelPlacement="outside"
         {isLoadingConnect &&
           connector.id === pendingConnector?.id &&
           ' (connecting)'}
-      </button>
-    ))}
+      </button>     
+      
 
+    ))}
+</div>
     {errorConnect && <div>{errorConnect.message}</div>}
   </div>
    ) || isPet ==  false  &&  isChain && isAddress && (
     <div className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 ">
      <h1 className="mt-48">You Dont Own Any Pet !</h1> 
-     {(allowance == BigInt(0)) ? (
+     {(!isApprove) ? (
       <button
 className="nes-btn w-52"
 onClick={approveAsync}
@@ -758,7 +780,7 @@ onClick={approveAsync}
 className="nes-btn w-52"
 disabled={!mint || isLoading} onClick={mint}
   >
-   Mint A Fens
+   Mint A GotChi
   
   </button>
 

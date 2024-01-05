@@ -35,7 +35,6 @@ const debouncedOwnPetId = useDebounce(ownPetId, 500)
 			  }
 			],
 		  })
-		  console.log(Info[0].result)
 		  setOwnPet(Info[0].result)
 		  setOwnPetId(pet);
 		}
@@ -103,7 +102,7 @@ const debouncedOwnPetId = useDebounce(ownPetId, 500)
       </CardHeader>
       <Divider/>
       <CardBody>
-		<h1>RECEIVE:{ownPet && ownPet[8].toString()} TOMO</h1>
+		<h1>RECEIVE:{ownPet && ownPet[8].toString()} Vic</h1>
       </CardBody>
       <Divider/>
     </Card>
