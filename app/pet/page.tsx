@@ -57,101 +57,103 @@ export default function PetPage() {
   const [countDownseconds, setCountDownseconds] = React.useState(0);
   const { chain  } = useNetwork()
 
-  const unwatch = watchAccount((account) => {
-    async function fetchMyAPI() {
-      if(address) {
-        setIsAddress(true)}
-        else{
-        
-          setIsAddress(false);
-       };
-      let response : any= await fetch(`${process.env.EXPLORER_URL}/api/tokentx/nft/list?tokenAddress=${process.env.NFT_ADDRESS}`)
-      response = await response.json()
-      const petArr : any = [];
-      
-      if(response.data){
-        for (const element of response.data) {
-          const Info : any = await readContracts({
-            contracts: [
-              {
-                address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-                abi: nftAbi,
-                functionName: 'getPetInfo',
-                args: [element.tokenId],
-              }
-            ],
-          })
-          if(element.to == address){
-            petArr.push({
-              value:element.tokenId,
-              label:Info[0].result[0]
-            })
-          }
-        }
-      }
-      
-      if(petArr[0]){
-        const pet = localStorage.getItem('pet');
-        let petId : any  = null ;
-      if (pet) {
-        setSelectedPet(pet);
-        petId = BigInt(pet)
+
+  const fetchMyAPI = async() => {
+    if(address) {
+      setIsAddress(true)}
+      else{
+      setIsAddress(false);
+     };
+    let response : any= await fetch(`${process.env.EXPLORER_URL}/api/tokentx/nft/list?tokenAddress=${process.env.NFT_ADDRESS}`)
+    response = await response.json()
+    const petArr : any = [];
     
-      }else{
-        localStorage.setItem('pet',petArr[0].value);
-        petId = petArr[0].value;
-        setSelectedPet(petArr[0].value)
-      }
-      const Info : any = await readContracts({
-        contracts: [
-          {
-            address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-            abi: nftAbi,
-            functionName: 'getPetInfo',
-            args: [petId],
-          }
-        ],
-      })
-      setOwnPet(Info[0].result)
-      const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
-      setCountDownseconds(seconds)
-    
-      
-    }
-    setPetData(petArr)
-    if(petArr.length > 0 ){
-      setIsPet(true)
-    }
-    if(petArr.length == 0 ){
-      setIsPet(false)
-    }
-      let items : any = [0,1];
-      let itemArr : any = [];
-      for (const element of items) {
+    if(response.data){
+      for (const element of response.data) {
         const Info : any = await readContracts({
           contracts: [
             {
               address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
               abi: nftAbi,
-              functionName: 'getItemInfo',
-              args: [element],
+              functionName: 'getPetInfo',
+              args: [element.tokenId],
             }
           ],
         })
-        itemArr.push({
-          id:element,
-          name:Info[0].result[0],
-          price:Info[0].result[1],
-          points:Info[0].result[2],
-          timeExtension:Info[0].result[3],
-        })
+        if(element.to == address){
+          petArr.push({
+            value:element.tokenId,
+            label:Info[0].result[0]
+          })
+        }
       }
-      setItemData(itemArr);
-      
     }
+    
+    if(petArr[0]){
+      const pet = localStorage.getItem('pet');
+      let petId : any  = null ;
+    if (pet) {
+      setSelectedPet(pet);
+      petId = BigInt(pet)
+      console.log("check1",pet)
+    }else{
+      localStorage.setItem('pet',petArr[0].value);
+      petId = petArr[0].value;
+      setSelectedPet(petArr[0].value)
+      console.log("check2",petArr[0].value)
+    }
+   
+    const Info : any = await readContracts({
+      contracts: [
+        {
+          address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+          abi: nftAbi,
+          functionName: 'getPetInfo',
+          args: [petId],
+        }
+      ],
+    })
+    setOwnPet(Info[0].result)
+    const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
+    setCountDownseconds(seconds)
+  
+    
+  }
+  setPetData(petArr)
+  if(petArr.length > 0 ){
+    setIsPet(true)
+  }
+  if(petArr.length == 0 ){
+    setIsPet(false)
+  }
+    let items : any = [0,1];
+    let itemArr : any = [];
+    for (const element of items) {
+      const Info : any = await readContracts({
+        contracts: [
+          {
+            address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+            abi: nftAbi,
+            functionName: 'getItemInfo',
+            args: [element],
+          }
+        ],
+      })
+      itemArr.push({
+        id:element,
+        name:Info[0].result[0],
+        price:Info[0].result[1],
+        points:Info[0].result[2],
+        timeExtension:Info[0].result[3],
+      })
+    }
+    setItemData(itemArr);
+    
+  }
 
-   fetchMyAPI()
-
+  const unwatch = watchAccount((account) => {
+    console.log("check",account)
+    localStorage.removeItem('pet')
   })
 	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
 		useSwitchNetwork({
@@ -161,85 +163,8 @@ export default function PetPage() {
 			onSettled(data, error) {
 			},
 			onSuccess(data) {
-        async function fetchMyAPI() {
-          let response : any= await fetch(`${process.env.EXPLORER_URL}/api/tokentx/nft/list?tokenAddress=${process.env.NFT_ADDRESS}`)
-          response = await response.json()
-          let petArr : any = [];
-          if(response.data){
-            for (const element of response.data) {
-              const Info : any = await readContracts({
-                contracts: [
-                  {
-                    address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-                    abi: nftAbi,
-                    functionName: 'getPetInfo',
-                    args: [element.tokenId],
-                  }
-                ],
-              })
-              if(element.to == address){
-                petArr.push({
-                  value:element.tokenId,
-                  label:Info[0].result[0]
-                })
-              }
-            }
-          }
-
-          
-          if(petArr[0]){
-            const pet = localStorage.getItem('pet');
-            let petId : any  = null ;
-          if (pet) {
-            setSelectedPet(pet);
-            petId = BigInt(pet)
-        
-          }else{
-            localStorage.setItem('pet',petArr[0].value);
-            petId = petArr[0].value;
-            setSelectedPet(petArr[0].value)
-          }
-          const Info : any = await readContracts({
-            contracts: [
-              {
-                address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-                abi: nftAbi,
-                functionName: 'getPetInfo',
-                args: [petId],
-              }
-            ],
-          })
-          setOwnPet(Info[0].result)
-          const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
-          setCountDownseconds(seconds)
-        }
-        setPetData(petArr)
-          let items : any = [0,1];
-          let itemArr : any = [];
-          for (const element of items) {
-            const Info : any = await readContracts({
-              contracts: [
-                {
-                  address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-                  abi: nftAbi,
-                  functionName: 'getItemInfo',
-                  args: [element],
-                }
-              ],
-            })
-            itemArr.push({
-              id:element,
-              name:Info[0].result[0],
-              price:Info[0].result[1],
-              points:Info[0].result[2],
-              timeExtension:Info[0].result[3],
-            })
-          }
-          setItemData(itemArr);
-          
-        }
+        localStorage.removeItem('pet')
         fetchMyAPI()
-				
 
       }
 		  })
@@ -295,6 +220,13 @@ export default function PetPage() {
       error:errorPetName,
     } = useContractWrite(configPetName);
 
+    const { isLoading : isLoadingPetNameResult} = useWaitForTransaction({
+			hash: petNameResult?.hash,
+			onSuccess(data) {
+			  fetchMyAPI()
+			},
+		  })
+      
     const { config : configBuyAccessory } = usePrepareContractWrite({
       address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
       abi: nftAbi,
@@ -314,20 +246,8 @@ export default function PetPage() {
     };
     const handleChangeSelectPet = async ( event : any )=> {
       localStorage.setItem('pet',event.target.value);
-      const Info : any = await readContracts({
-        contracts: [
-          {
-            address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-            abi: nftAbi,
-            functionName: 'getPetInfo',
-            args: [event.target.value],
-          }
-        ],
-      })
-      setOwnPet(Info[0].result)
-      const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
-      setCountDownseconds(seconds)
       setSelectedPet(event.target.value);
+      fetchMyAPI();
     };
     const onChangePetName = () =>{
        setPetNameAsync?.();
@@ -349,26 +269,7 @@ export default function PetPage() {
       });
       
       
-      const loadData = async() => {
-        const petId = localStorage.getItem('pet');
-        if(petId){
-          const Info : any = await readContracts({
-            contracts: [
-              {
-                address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-                abi: nftAbi,
-                functionName: 'getPetInfo',
-                args: [BigInt(petId)],
-              }
-            ],
-          })
-          setOwnPet(Info[0].result)
-          const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
-          setCountDownseconds(seconds)
-        }
-        
-      }
-      loadData();
+      fetchMyAPI();
       setBalloons(`Pet ${ownPet[0]} was fed ${getItemInfo.name} !` );
     },
     onError(error) {
@@ -468,96 +369,13 @@ export default function PetPage() {
     else{
       setIsAddress(false);
      };
-     if(chain?.id == process.env.CHAIN_ID){setIsChain(true)}else{
+     if(chain?.id == process.env.CHAIN_ID){
+      setIsChain(true)
+    }
+    else{
       setIsChain(false)
      }
-    async function fetchMyAPI() {
-
-      let response : any= await fetch(`${process.env.EXPLORER_URL}/api/tokentx/nft/list?tokenAddress=${process.env.NFT_ADDRESS}`)
-      response = await response.json()
-      const petArr : any = [];
-      
-      if(response.data){
-        for (const element of response.data) {
-          
-          const Info : any = await readContracts({
-            contracts: [
-              {
-                address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-                abi: nftAbi,
-                functionName: 'getPetInfo',
-                args: [element.tokenId],
-              }
-            ],
-          })
-          
-          if(element.to == address){
-            petArr.push({
-              value:element.tokenId,
-              label:Info[0].result[0]
-            })
-          }
-        }
-      }
-      if(petArr[0]){
-        const pet = localStorage.getItem('pet');
-        let petId : any  = null ;
-      if (pet) {
-        setSelectedPet(pet);
-        petId = BigInt(pet)
-    
-      }else{
-        localStorage.setItem('pet',petArr[0].value);
-        petId = petArr[0].value;
-        setSelectedPet(petArr[0].value)
-      }
-      const Info : any = await readContracts({
-        contracts: [
-          {
-            address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-            abi: nftAbi,
-            functionName: 'getPetInfo',
-            args: [petId],
-          }
-        ],
-      })
-      setOwnPet(Info[0].result)
-      const seconds = parseInt(Info[0].result[4]) *1000 - Date.now();
-      setCountDownseconds(seconds)
-    
-      
-    }
-    setPetData(petArr)
-    if(petArr.length > 0 ){
-      setIsPet(true)
-    }
-    if(petArr.length == 0 ){
-      setIsPet(false)
-    }
-      let items : any = [0,1];
-      let itemArr : any = [];
-      for (const element of items) {
-        const Info : any = await readContracts({
-          contracts: [
-            {
-              address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-              abi: nftAbi,
-              functionName: 'getItemInfo',
-              args: [element],
-            }
-          ],
-        })
-        itemArr.push({
-          id:element,
-          name:Info[0].result[0],
-          price:Info[0].result[1],
-          points:Info[0].result[2],
-          timeExtension:Info[0].result[3],
-        })
-      }
-      setItemData(itemArr);
-      
-    }
+  
 
    fetchMyAPI()
 
