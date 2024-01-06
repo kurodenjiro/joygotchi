@@ -42,6 +42,7 @@ export default function Battle() {
 		  writeAsync: setAttackAsync,
 		  error:errorAttack,
 		} = useContractWrite(configAttack);
+		
 		const { isLoading : isLoadingAttack} = useWaitForTransaction({
 			hash: attackData?.hash,
 			onSuccess(data) {
@@ -84,18 +85,19 @@ const onAttack = ( petId : any )=> {
 			  setActivity(list)
 			},
 		  })
-const onKill = ( petId : any )=> {
+const onKill = async( petId : any )=> {
 	console.log("kill",petId)
-      setSelectedPet(petId);
-	  setKillAsync?.();
+      await setSelectedPet(petId);
+	  await setKillAsync?.();
     };
 
 
 const fetchMyAPI = async()=>{
 
-	let response : any= await fetch(`${process.env.EXPLORER_URL}/api/tokentx/nft/list?tokenAddress=${process.env.NFT_ADDRESS}`)
+	let response : any= await fetch(`${process.env.EXPLORER_URL}/api/nft/inventory?tokenAddress=${process.env.NFT_ADDRESS}`)
 	response = await response.json()
 	let petArr : any = [];
+	let petArrOwned : any = [];
 	if(response.data){
 	  for (const element of response.data) {
 		const Info : any = await readContracts({
@@ -108,16 +110,23 @@ const fetchMyAPI = async()=>{
 			}
 		  ],
 		})
-		if(element.to !== address){
+		if(element.address !== address){
 		  Info[0].result.push(element.tokenId);
 		  petArr.push(Info[0].result)
 		}
+		if(element.address == address){
+			petArrOwned.push({
+			  value:element.tokenId,
+			  label:Info[0].result[0]
+			})
+		  }
 	  }
 	}
+	console.log("petArr",petArr)
 	setListBattle(petArr)
 	
 	const pet = localStorage.getItem('pet');
-	
+	console.log("check3",pet)
 	if (pet) {
 		const Info : any = await readContracts({
 			contracts: [
@@ -129,11 +138,25 @@ const fetchMyAPI = async()=>{
 			  }
 			],
 		  })
-		 
-		  Info[0].result.push(BigInt(pet));
-		  setOwnPetId(pet);
 		  
+		  Info[0].result.push(BigInt(pet));
+		  
+		  setOwnPetId(pet);
 		  setOwnPet(Info[0].result);
+  }else{
+	localStorage.setItem('pet',petArrOwned[0].value);
+	setOwnPetId(petArrOwned[0].value);
+	const Info : any = await readContracts({
+		contracts: [
+		  {
+			address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+			abi: nftAbi,
+			functionName: 'getPetInfo',
+			args: [BigInt(petArrOwned[0].value)],
+		  }
+		],
+	  })
+	  setOwnPet(Info[0].result);
   }
 } 
 	useEffect(() => {
@@ -155,7 +178,7 @@ const fetchMyAPI = async()=>{
 		 <User
 		 avatarProps={{radius: "lg", className:"p-1" ,src: "/gotchi/Animated/GIF_Pet.gif"}}
 		 description={'lv:'+pet[3]}
-		 name={pet[0] || "Unknow" +"#"+pet[9]}
+		 name={pet[0] +"#"+pet[9] || "Unknow" +"#"+pet[9]}
 		 
 	   >
 	   </User></TableCell>
