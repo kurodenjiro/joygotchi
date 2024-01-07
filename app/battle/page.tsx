@@ -6,6 +6,7 @@ import {
 	useContractWrite,
 	useWaitForTransaction,
 	useAccount,
+	useContractEvent
   } from "wagmi";
   import {Table, TableHeader, TableColumn,Link, TableBody, TableRow, TableCell, User, Chip, Tooltip, getKeyValue,Button} from "@nextui-org/react";
   import { readContracts , watchAccount  } from '@wagmi/core'
@@ -13,10 +14,11 @@ import {
   import { nftAbi , tokenAbi } from '../../abi';
   import { useDebounce } from './useDebounce'
   import {Image} from "@nextui-org/react";
+  import { Interface } from 'ethers'
+import { log } from "console";
   const nftAddress= `0x${process.env.NFT_ADDRESS?.slice(2)}`;
   //https://github.com/ChangoMan/nextjs-ethereum-starter/blob/main/frontend/pages/index.tsx
 export default function Battle() {
-
 	const [listBattle, setListBattle] = useState<any>(null);
 	const { address } = useAccount();
 	const [ownPet, setOwnPet] = useState<any>(null)
@@ -26,9 +28,9 @@ export default function Battle() {
 	const debouncedSelectedPet = useDebounce(selectedPet, 500)
 	const debouncedOwnPetId = useDebounce(ownPetId, 500)
 	const unwatch = watchAccount((account) => {
-		localStorage.removeItem('pet')
-    
+
 	})
+	
 	
 	const { config : configAttack } = usePrepareContractWrite({
 		address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
@@ -47,14 +49,18 @@ export default function Battle() {
 			hash: attackData?.hash,
 			onSuccess(data) {
 			  console.log('success data', data)
-			  const list = activity;
-			  list.push(`You Pet #${debouncedOwnPetId} attacked #${debouncedSelectedPet}`)
-			  setActivity(list)
+			  const InputDataDecoder = require('ethereum-input-data-decoder');
+			  const decoder = new InputDataDecoder(nftAbi);
+			  const data1 = decoder.decodeData(data.logs[0].data);
+			  console.log("decode",data1);
 			  fetchMyAPI()
 			},
+			onSettled(data, error) {
+				console.log('Settled', { data, error })
+			  },
 		  })
 const onAttack = ( petId : any )=> {
-	console.log('attack',petId)
+	console.log("pet",debouncedOwnPetId)
       setSelectedPet(petId);
 	  setAttackAsync?.();
     };
@@ -79,10 +85,7 @@ const onAttack = ( petId : any )=> {
 			hash: killData?.hash,
 			onSuccess(data) {
 			  console.log('success data', data)
-			  const list = activity;
-			  list.push(`You Pet ${debouncedOwnPetId} killed ${debouncedSelectedPet}`)
 			  fetchMyAPI();
-			  setActivity(list)
 			},
 		  })
 const onKill = async( petId : any )=> {
@@ -110,7 +113,7 @@ const fetchMyAPI = async()=>{
 			}
 		  ],
 		})
-		if(element.address !== address){
+		if(element.address !== address && element.address !== '0x0000000000000000000000000000000000000000'){
 		  Info[0].result.push(element.tokenId);
 		  petArr.push(Info[0].result)
 		}
@@ -122,11 +125,11 @@ const fetchMyAPI = async()=>{
 		  }
 	  }
 	}
-	console.log("petArr",petArr)
+	console.log("petArr",petArr);
 	setListBattle(petArr)
 	
 	const pet = localStorage.getItem('pet');
-	console.log("check3",pet)
+	console.log("pet",pet)
 	if (pet) {
 		const Info : any = await readContracts({
 			contracts: [
@@ -142,23 +145,63 @@ const fetchMyAPI = async()=>{
 		  Info[0].result.push(BigInt(pet));
 		  
 		  setOwnPetId(pet);
+		  console.log("ownedpet",Info[0].result)
 		  setOwnPet(Info[0].result);
   }else{
-	localStorage.setItem('pet',petArrOwned[0].value);
-	setOwnPetId(petArrOwned[0].value);
-	const Info : any = await readContracts({
-		contracts: [
-		  {
-			address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-			abi: nftAbi,
-			functionName: 'getPetInfo',
-			args: [BigInt(petArrOwned[0].value)],
-		  }
-		],
-	  })
-	  setOwnPet(Info[0].result);
+	if(petArrOwned[0]){
+		localStorage.setItem('pet',petArrOwned[0].value);
+		setOwnPetId(petArrOwned[0].value);
+		const Info : any = await readContracts({
+			contracts: [
+			  {
+				address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+				abi: nftAbi,
+				functionName: 'getPetInfo',
+				args: [BigInt(petArrOwned[0].value)],
+			  }
+			],
+		  })
+		  setOwnPet(Info[0].result);
+	}
+
   }
 } 
+useContractEvent({
+	address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+	abi: nftAbi,
+	listener(logs) {
+		console.log("logs",logs);
+		async function getlogs() {
+			if(logs[0]){
+				const petAttacked : any = await readContracts({
+					contracts: [
+					  {
+						address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+						abi: nftAbi,
+						functionName: 'getPetInfo',
+						args: [selectedPet as bigint],
+					  }
+					],
+				  })
+	
+				const list = activity;
+				list.push(` Your Pet attacked ${JSON.stringify(petAttacked)} and ${ownPetId == logs[0].args.winner ? "won" : "lost"} ${logs[0].args.scoresWon} points`)
+				setActivity(list)
+			}
+		  }
+		  getlogs();
+	  }
+  })
+ 
+  useContractEvent({
+	address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+	abi: nftAbi,
+	eventName: 'PetKilled',
+	listener: (logs) => {
+		console.log("logs",logs);
+	  }
+  })
+
 	useEffect(() => {
 		fetchMyAPI()
 	  }, [])
@@ -199,7 +242,7 @@ const fetchMyAPI = async()=>{
 	   </div></TableCell>
 	   <TableCell>
 		{
-		 ownPet &&	ownPet[3] <  pet[3]  && pet[1] !== 4  && (
+		 ownPet &&	ownPet[3] <  pet[3]  && pet[1] !== 4  &&  pet[5] == BigInt("0") &&  ownPet[6] == BigInt("0") && (
 <Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onAttack(pet[9])}>
 	   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 				 <g>

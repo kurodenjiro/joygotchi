@@ -152,7 +152,7 @@ export default function PetPage() {
   }
 
   const unwatch = watchAccount((account) => {
-    console.log("check",account)
+    console.log("remove")
     localStorage.removeItem('pet')
   })
 	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
@@ -165,7 +165,6 @@ export default function PetPage() {
 			onSuccess(data) {
         localStorage.removeItem('pet')
         fetchMyAPI()
-
       }
 		  })
 

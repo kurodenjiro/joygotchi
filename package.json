@@ -34,6 +34,7 @@
     "eslint": "8.48.0",
     "eslint-config-next": "14.0.2",
     "ethereum-input-data-decoder": "^0.4.2",
+    "ethers": "^6.9.2",
     "framer-motion": "^10.16.4",
     "intl-messageformat": "^10.5.0",
     "lokijs": "^1.5.12",
