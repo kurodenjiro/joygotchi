@@ -14,8 +14,6 @@ import {
   import { nftAbi , tokenAbi } from '../../abi';
   import { useDebounce } from './useDebounce'
   import {Image} from "@nextui-org/react";
-  import { Interface } from 'ethers'
-import { log } from "console";
   const nftAddress= `0x${process.env.NFT_ADDRESS?.slice(2)}`;
   //https://github.com/ChangoMan/nextjs-ethereum-starter/blob/main/frontend/pages/index.tsx
 export default function Battle() {
@@ -53,22 +51,9 @@ export default function Battle() {
 			  const decoder = new InputDataDecoder(nftAbi);
 			  const data1 = decoder.decodeData(data.logs[0].data);
 			  console.log("decode",data1);
-			  async function getlogs() {
-				  
-				listBattle.forEach((element:any) => {
-					if(element[0] == selectedPet){
-
-					}
-				}); 
-		  
-					  const list = activity;
-					  list.push(` You killed #${selectedPet} `)
-					  
-					  setActivity(list)
-					  
-				  
-				}
-				getlogs();
+			  const list = activity;
+			  list.push(` You Attacked #${selectedPet} `)
+			  setActivity(list)
 
 			  fetchMyAPI()
 			}
@@ -100,7 +85,8 @@ const onAttack = ( petId : any )=> {
 			onSuccess(data) {
 			  console.log('success data', data)
 			  const list = activity;
-					  list.push(` You Attacked #${selectedPet} `)
+			  list.push(` You Killed #${selectedPet} `)
+			  setActivity(list)
 			  fetchMyAPI();
 			},
 		  })
