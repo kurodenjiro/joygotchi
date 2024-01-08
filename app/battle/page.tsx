@@ -241,8 +241,9 @@ useContractEvent({
 		 <p className="text-bold text-sm capitalize text-default-400">Pts.</p>
 	   </div></TableCell>
 	   <TableCell>
+
 		{
-		 ownPet &&	ownPet[3] <  pet[3]  && pet[1] !== 4  &&  pet[5] == BigInt("0") &&  ownPet[6] == BigInt("0") && (
+		 ownPet &&	ownPet[3] <  pet[3]  && pet[1] !== 4 &&  ownPet[6] == BigInt("0") && (pet[5] == BigInt("0")  ||  Math.floor((( Math.abs(Number(new Date( Number(pet[5]) )) * 1000  - Date.now())) /1000)/60)/60 > 1)    && (
 <Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onAttack(pet[9])}>
 	   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 				 <g>
