@@ -53,11 +53,25 @@ export default function Battle() {
 			  const decoder = new InputDataDecoder(nftAbi);
 			  const data1 = decoder.decodeData(data.logs[0].data);
 			  console.log("decode",data1);
+			  async function getlogs() {
+				  
+				listBattle.forEach((element:any) => {
+					if(element[0] == selectedPet){
+
+					}
+				}); 
+		  
+					  const list = activity;
+					  list.push(` You killed #${selectedPet} `)
+					  
+					  setActivity(list)
+					  
+				  
+				}
+				getlogs();
+
 			  fetchMyAPI()
-			},
-			onSettled(data, error) {
-				console.log('Settled', { data, error })
-			  },
+			}
 		  })
 const onAttack = ( petId : any )=> {
 	console.log("pet",debouncedOwnPetId)
@@ -85,6 +99,8 @@ const onAttack = ( petId : any )=> {
 			hash: killData?.hash,
 			onSuccess(data) {
 			  console.log('success data', data)
+			  const list = activity;
+					  list.push(` You Attacked #${selectedPet} `)
 			  fetchMyAPI();
 			},
 		  })
@@ -169,6 +185,7 @@ const fetchMyAPI = async()=>{
 useContractEvent({
 	address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 	abi: nftAbi,
+	eventName:"Attack",
 	listener(logs) {
 		console.log("logs",logs);
 		async function getlogs() {
@@ -187,6 +204,7 @@ useContractEvent({
 				const list = activity;
 				//list.push(` Your Pet attacked ${JSON.stringify(petAttacked)} and ${ownPetId == logs[0].args.winner ? "won" : "lost"} ${logs[0].args.scoresWon} points`)
 				setActivity(list)
+				fetchMyAPI();
 			}
 		  }
 		  getlogs();
@@ -199,6 +217,27 @@ useContractEvent({
 	eventName: 'PetKilled',
 	listener: (logs) => {
 		console.log("logs",logs);
+		async function getlogs() {
+			if(logs[0]){
+				const petDeaded : any = await readContracts({
+					contracts: [
+					  {
+						address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+						abi: nftAbi,
+						functionName: 'getPetInfo',
+						args: [logs[0].args.deadId as bigint],
+					  }
+					],
+				  })
+	
+				const list = activity;
+				list.push(` You killed ${JSON.stringify(petDeaded)} `)
+				fetchMyAPI();
+				setActivity(list)
+				
+			}
+		  }
+		  getlogs();
 	  }
   })
 

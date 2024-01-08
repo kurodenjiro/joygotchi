@@ -15,6 +15,7 @@ export const vicTestnet = {
   network: 'viction',
   nativeCurrency: {
     decimals: 18,
+	
     name: 'tomo',
     symbol: 'TOMO',
   },
@@ -40,14 +41,18 @@ import {
   } from '@rainbow-me/rainbowkit/wallets';
   import { configureChains, createConfig, WagmiConfig } from 'wagmi';
   
-  import { publicProvider } from 'wagmi/providers/public';
+  import { publicProvider  } from 'wagmi/providers/public';
+  import { alchemyProvider } from 'wagmi/providers/alchemy';
   
   const { chains, publicClient, webSocketPublicClient } = configureChains(
 	[
 		vicTestnet,
 	  ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [vicTestnet] : []),
 	],
-	[publicProvider()]
+	[
+		publicProvider(),
+		alchemyProvider({ apiKey: "Df6rvkniZ98Rh9Dvhn-88PEfJkE9_Tgg" })
+	]
   );
   
   const projectId = 'ea8370ab6881883427566262faaf8556';
