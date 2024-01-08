@@ -8,21 +8,31 @@ import {
 	useAccount,
 	useContractEvent
   } from "wagmi";
-  import {Table, TableHeader, TableColumn,Link, TableBody, TableRow, TableCell, User, Chip, Tooltip, getKeyValue,Button} from "@nextui-org/react";
+  import {Table, TableHeader, TableColumn,Link, TableBody, TableRow, TableCell, User, Chip, Tooltip, getKeyValue,Button,Spinner} from "@nextui-org/react";
   import { readContracts , watchAccount  } from '@wagmi/core'
   import {Card, CardBody , CardHeader , Divider} from "@nextui-org/react";
   import { nftAbi , tokenAbi } from '../../abi';
   import { useDebounce } from './useDebounce'
   import {Image} from "@nextui-org/react";
+  const ethers = require("ethers")
   const nftAddress= `0x${process.env.NFT_ADDRESS?.slice(2)}`;
+  const getEventSignature = (eventName : string, abi:any) => {
+    const eventAbi = abi.find((entry:any) => entry.name === eventName);
+    const types = eventAbi.inputs.map((input:any) => input.type);
+    return `${eventName}(${types.join(',')})`;
+}
   //https://github.com/ChangoMan/nextjs-ethereum-starter/blob/main/frontend/pages/index.tsx
 export default function Battle() {
+	
 	const [listBattle, setListBattle] = useState<any>(null);
 	const { address } = useAccount();
 	const [ownPet, setOwnPet] = useState<any>(null)
 	const [ownPetId, setOwnPetId] = useState<any>(null)
 	const [selectedPet, setSelectedPet] = useState<any>(null)
 	const [activity, setActivity] = useState<any>([])
+	const [isLoading, setIsLoading] = React.useState(true);
+	const colors = ["default", "primary", "secondary", "success", "warning", "danger"];
+	const [selectedColor, setSelectedColor] = React.useState("default");
 	const debouncedSelectedPet = useDebounce(selectedPet, 500)
 	const debouncedOwnPetId = useDebounce(ownPetId, 500)
 	const unwatch = watchAccount((account) => {
@@ -30,6 +40,7 @@ export default function Battle() {
 	})
 	
 	
+
 	const { config : configAttack } = usePrepareContractWrite({
 		address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 		abi: nftAbi,
@@ -96,9 +107,29 @@ const onKill = async( petId : any )=> {
 	  await setKillAsync?.();
     };
 
+	const trackLogs = async()=>{
+		const provider = new ethers.providers.JsonRpcProvider('https://rpc-testnet.viction.xyz')
+		const eventSignature = getEventSignature('Attack', nftAbi)
+		console.log('-------------')
+		console.log(eventSignature)
+		console.log('-------------')
+		
+		const filter = {
+			address: nftAddress,
+			topics: [
+				ethers.utils.id(eventSignature),
+	
+			]
+		};
+		const result = await provider.getLogs(filter)
+		const contractInterface = new ethers.utils.Interface(nftAbi);
 
+    result.forEach((log:any, idx:any) => {
+        const decodedLog = contractInterface.decodeEventLog('Attack', log.data, log.topics);
+        console.log('logs:', decodedLog)
+    });
+	}
 const fetchMyAPI = async()=>{
-
 	let response : any= await fetch(`${process.env.EXPLORER_URL}/api/nft/inventory?tokenAddress=${process.env.NFT_ADDRESS}`)
 	response = await response.json()
 	let petArr : any = [];
@@ -128,6 +159,7 @@ const fetchMyAPI = async()=>{
 	  }
 	}
 	console.log("petArr",petArr);
+	setIsLoading(false)
 	setListBattle(petArr)
 	
 	const pet = localStorage.getItem('pet');
@@ -229,17 +261,23 @@ useContractEvent({
 
 	useEffect(() => {
 		fetchMyAPI()
+		trackLogs();
 	  }, [])
 	return (
 		<>
 		<div>
-<Table aria-label="Example static collection table h-44" className="pt-3">
+<Table isStriped
+color={selectedColor}
+        selectionMode="single"  aria-label="Example static collection table h-44" classNames={{
+        base: "max-h-[520px] pt-3",
+        table: "min-h-[420px] pt-3",
+      }}>
       <TableHeader>
         <TableColumn>Info</TableColumn>
         <TableColumn>Score</TableColumn>
         <TableColumn>Battle</TableColumn>
       </TableHeader>
-      <TableBody>
+      <TableBody isLoading={isLoading} loadingContent={<Spinner label="Loading..." />} >
 	  {listBattle && listBattle.map((pet:any,index:number) => (
        <TableRow key={index} >
 	   <TableCell > 
@@ -268,7 +306,7 @@ useContractEvent({
 	   <TableCell>
 
 		{
-		 ownPet &&	ownPet[3] <  pet[3]  && pet[1] !== 4 &&  ownPet[6] == BigInt("0") && (pet[5] == BigInt("0")  ||  Math.floor((( Math.abs(Number(new Date( Number(pet[5]) )) * 1000  - Date.now())) /1000)/60)/60 > 1)    && (
+		 ownPet &&	ownPet[3] <  pet[3]  && pet[1] !== 4 && ownPet[1] !== 4 &&  ownPet[6] == BigInt("0") && (pet[5] == BigInt("0")  ||  Math.floor((( Math.abs(Number(new Date( Number(pet[5]) )) * 1000  - Date.now())) /1000)/60)/60 > 1)    && (
 <Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onAttack(pet[9])}>
 	   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 				 <g>
@@ -295,6 +333,7 @@ src="/gotchi/Icon/skull2.png"
       ))}
        
       </TableBody>
+	  
     </Table>
 	
 	
