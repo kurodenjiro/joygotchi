@@ -152,8 +152,7 @@ export default function PetPage() {
   }
 
   const unwatch = watchAccount((account) => {
-    console.log("remove")
-    localStorage.removeItem('pet')
+    
   })
 	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
 		useSwitchNetwork({
@@ -210,6 +209,9 @@ export default function PetPage() {
     abi: nftAbi,
     functionName: "setPetName",
     args: [debouncedSelectedPet, debouncedPetName],
+    onSettled: (e) => {
+      console.log('Mutate', e)
+      },
     });
   
     
@@ -217,8 +219,8 @@ export default function PetPage() {
       data: petNameResult,
       writeAsync: setPetNameAsync,
       error:errorPetName,
+      
     } = useContractWrite(configPetName);
-
     const { isLoading : isLoadingPetNameResult} = useWaitForTransaction({
 			hash: petNameResult?.hash,
 			onSuccess(data) {
@@ -231,6 +233,7 @@ export default function PetPage() {
       abi: nftAbi,
       functionName: "buyAccessory",
       args: [debouncedSelectedPet, debouncedSelectedItem],
+   
       });
     
       const {

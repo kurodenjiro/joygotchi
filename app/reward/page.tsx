@@ -49,6 +49,8 @@ const debouncedOwnPetId = useDebounce(ownPetId, 500)
 		abi: nftAbi,
 		functionName: "redeem",
 		args: [debouncedOwnPetId ],
+		chainId:89
+
 		});
 	  
 		const {

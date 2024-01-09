@@ -31,11 +31,9 @@ export default function Battle() {
 	const { address } = useAccount();
 	const [page, setPage] = React.useState(0);
 	const [ownPet, setOwnPet] = useState<any>(null)
-	const [ownPetId, setOwnPetId] = useState<any>(null)
-	const [selectedPet, setSelectedPet] = useState<any>(null)
+	const [ownPetId, setOwnPetId] = useState<string>("")
+	const [selectedPet, setSelectedPet] = useState<string>("")
 	const [activity, setActivity] = useState<any>([])
-	const colors = ["default", "primary", "secondary", "success", "warning", "danger"];
-	const [selectedColor, setSelectedColor] = React.useState("default");
 	const debouncedSelectedPet = useDebounce(selectedPet, 500)
 	const debouncedOwnPetId = useDebounce(ownPetId, 500)
 	const unwatch = watchAccount((account) => {
@@ -62,7 +60,6 @@ export default function Battle() {
 
 	  const renderCell = React.useCallback(async(data:any, columnKey:any ) => {
 		const cellValue = data[columnKey];
-		console.log("ownedpet1",ownPet)
 		const res : any = await readContracts({
 			contracts: [
 			  {
@@ -99,7 +96,7 @@ export default function Battle() {
 			  <div className="relative flex justify-end items-center gap-2">
 				{
 		 ownPet &&	ownPet[3] <  pet[3]  && pet[1] !== 4 && ownPet[1] !== 4 &&  ownPet[6] == BigInt("0") && (pet[5] == BigInt("0")  ||  Math.floor((( Math.abs(Number(new Date( Number(pet[5]) )) * 1000  - Date.now())) /1000)/60)/60 > 1)    && (
-<Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onAttack(pet[9])}>
+<Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onAttack(data.tokenId)}>
 	   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 				 <g>
 					 <path fill="none" d="M0 0h24v24H0z"/>
@@ -110,8 +107,8 @@ export default function Battle() {
 			)
 		}
 		{
-		  pet[1] == 4  &&(
-<Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onKill(pet[9])}>
+		 ownPetId &&  pet[1] == 4   &&(
+<Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onKill(data.tokenId)}>
 <Image
     radius={"none"}
     width={40}
@@ -126,13 +123,6 @@ src="/gotchi/Icon/skull2.png"
 			return cellValue;
 		}
 	  }, [ownPet]);
-
-
-	 
-
-	
-
-	
 
 
 	const { config : configAttack } = usePrepareContractWrite({
@@ -168,19 +158,24 @@ const onAttack = ( petId : any )=> {
 
 //kill
 	
-	const { config : configKill } = usePrepareContractWrite({
+	const { data:pdata,config : configKill } = usePrepareContractWrite({
 		address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 		abi: nftAbi,
 		functionName: "kill",
-		args: [debouncedSelectedPet,debouncedOwnPetId],
+		args: [debouncedSelectedPet ,debouncedOwnPetId],
+		onError: (e) => console.log("ERROR PrepareContractWrite: ", e),
+		onSettled: (e) => {
+			console.log('Mutate', e)
+		  },
 		});
-	  
+		//console.log("PrepareContractWrite: ", pdata, configKill)
 		const {
 		  data: killData,
-		  writeAsync: setKillAsync,
-		  error:errorKill,
+		  write: setKillAsync,
+		  error:errorKill
 		} = useContractWrite(configKill);
 
+		
 
 		const { isLoading : isLoadingKill} = useWaitForTransaction({
 			hash: killData?.hash,
@@ -191,15 +186,17 @@ const onAttack = ( petId : any )=> {
 			  fetchMyAPI();
 			},
 		  })
-const onKill = async( petId : any )=> {
-      await setSelectedPet(petId);
-	  await setKillAsync?.();
+
+const onKill = async( tokenId : string )=> {
+       await setSelectedPet(tokenId+"");
+	   await setKillAsync?.();
     };
 
 	
+
 const fetchMyAPI = async()=>{
 	mutate();
-	const pet =  typeof window !== 'undefined' ? localStorage.getItem('pet') : null;
+	const pet =  typeof window !== 'undefined' ? localStorage.getItem('pet')+"" : null;
 	console.log("ownedPet",pet)
     if (pet) {
         const Info : any = await readContracts({
@@ -214,9 +211,8 @@ const fetchMyAPI = async()=>{
           })
           
           Info[0].result.push(BigInt(pet));
-          
           setOwnPetId(pet);
-          console.log("ownedpet",Info[0].result)
+          //console.log("ownedpet",Info[0].result)
           setOwnPet(Info[0].result);
   }
 } 
@@ -314,58 +310,14 @@ useContractEvent({
 	  loadingContent={<Spinner label="Loading..." />}
 	  
 	  >
-		{/* {item.address !== address && element.address !== '0x0000000000000000000000000000000000000000') 
-		} */}
+		
 		
 		   {(item:any)  =>  (
           <TableRow key={item?.tokenIdString}>
             {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
           </TableRow>
         )}
-	  {/* {listBattle && listBattle.map((pet:any,index:number) => (
-       <TableRow key={index} >
-	   <TableCell > 
-		 <User
-		 avatarProps={{radius: "lg", className:"p-1" ,src: "/gotchi/Animated/GIF_Pet.gif"}}
-		 description={'lv:'+pet[3]}
-		 name={pet[0] +"#"+pet[9] || "Unknow" +"#"+pet[9]}
-	   >
-	   </User>
-	   </TableCell>
-
-	   <TableCell > 
-		 <div className="flex flex-col">
-		 <p className="text-bold text-sm capitalize">{pet[2].toString()}</p>
-		 <p className="text-bold text-sm capitalize text-default-400">Pts.</p>
-	   </div></TableCell>
-	   <TableCell>
-
-		{
-		 ownPet &&	ownPet[3] <  pet[3]  && pet[1] !== 4 && ownPet[1] !== 4 &&  ownPet[6] == BigInt("0") && (pet[5] == BigInt("0")  ||  Math.floor((( Math.abs(Number(new Date( Number(pet[5]) )) * 1000  - Date.now())) /1000)/60)/60 > 1)    && (
-<Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onAttack(pet[9])}>
-	   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-				 <g>
-					 <path fill="none" d="M0 0h24v24H0z"/>
-					 <path fill-rule="nonzero" d="M17.457 3L21 3.003l.002 3.523-5.467 5.466 2.828 2.829 1.415-1.414 1.414 1.414-2.474 2.475 2.828 2.829-1.414 1.414-2.829-2.829-2.475 2.475-1.414-1.414 1.414-1.415-2.829-2.828-2.828 2.828 1.415 1.415-1.414 1.414-2.475-2.475-2.829 2.829-1.414-1.414 2.829-2.83-2.475-2.474 1.414-1.414 1.414 1.413 2.827-2.828-5.46-5.46L3 3l3.546.003 5.453 5.454L17.457 3zm-7.58 10.406L7.05 16.234l.708.707 2.827-2.828-.707-.707zm9.124-8.405h-.717l-4.87 4.869.706.707 4.881-4.879v-.697zm-14 0v.7l11.241 11.241.707-.707L5.716 5.002l-.715-.001z"/>
-				 </g>
-			 </svg>
-   </Button>
-			)
-		}
-		{
-		  pet[1] == 4  &&(
-<Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onKill(pet[9])}>
-<Image
-    radius={"none"}
-    width={40}
-src="/gotchi/Icon/skull2.png"
-/>
-   </Button>
-			)
-		}
-	    </TableCell>
-	 </TableRow>
-      ))} */}
+	
        
       </TableBody>
 	  
