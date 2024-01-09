@@ -6,15 +6,16 @@ import {
 	useContractWrite,
 	useWaitForTransaction,
 	useAccount,
-	useContractEvent
+	useContractEvent,
   } from "wagmi";
   import {Table, TableHeader, TableColumn,Link, TableBody, TableRow, TableCell, User, Chip, Tooltip, getKeyValue,Button,Spinner ,Pagination} from "@nextui-org/react";
-  import { readContracts , watchAccount  } from '@wagmi/core'
+  import { readContracts , watchAccount  , writeContract ,prepareWriteContract} from '@wagmi/core'
   import {Card, CardBody , CardHeader , Divider} from "@nextui-org/react";
   import { nftAbi , tokenAbi } from '../../abi';
   import { useDebounce } from './useDebounce'
   import {Image} from "@nextui-org/react";
   import useSWR from "swr";
+import { Console } from "console";
 
 
   const fetcher = async (...args: Parameters<typeof fetch>) => {
@@ -31,11 +32,9 @@ export default function Battle() {
 	const { address } = useAccount();
 	const [page, setPage] = React.useState(0);
 	const [ownPet, setOwnPet] = useState<any>(null)
-	const [ownPetId, setOwnPetId] = useState<string>("")
-	const [selectedPet, setSelectedPet] = useState<string>("")
+	const [ownPetId, setOwnPetId] = useState<any>('')
+	const [selectedPet, setSelectedPet] = useState<any>('')
 	const [activity, setActivity] = useState<any>([])
-	const debouncedSelectedPet = useDebounce(selectedPet, 500)
-	const debouncedOwnPetId = useDebounce(ownPetId, 500)
 	const unwatch = watchAccount((account) => {
 
 	})
@@ -125,71 +124,40 @@ src="/gotchi/Icon/skull2.png"
 	  }, [ownPet]);
 
 
-	const { config : configAttack } = usePrepareContractWrite({
-		address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
-		abi: nftAbi,
-		functionName: "attack",
-		args: [debouncedOwnPetId , debouncedSelectedPet],
-		});
-	  
-		const {
-		  data: attackData,
-		  writeAsync: setAttackAsync,
-		  error:errorAttack,
-		} = useContractWrite(configAttack);
-		
-		const { isLoading : isLoadingAttack} = useWaitForTransaction({
-			hash: attackData?.hash,
-			onSuccess(data) {
-			  const InputDataDecoder = require('ethereum-input-data-decoder');
-			  const decoder = new InputDataDecoder(nftAbi);
-			  const data1 = decoder.decodeData(data.logs[0].data);
-			  const list = activity;
-			  list.push(` You Attacked #${selectedPet} `)
-			  setActivity(list)
+	
+const onAttack = async ( tokenId : any )=> {
+	await setSelectedPet(tokenId);
+	const config =  await prepareWriteContract({
+	 address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
+	 abi: nftAbi,
+	 functionName: "attack",
+	 args: [ownPetId ,tokenId]})
+	const tx = await writeContract(config);
+	if(tx){
 
-			  fetchMyAPI()
-			}
-		  })
-const onAttack = ( petId : any )=> {
-      setSelectedPet(petId);
-	  setAttackAsync?.();
+	 const list = activity;
+	 list.push(` You Attacked #${tokenId} `)
+	 setActivity(list)
+	 fetchMyAPI();
+	}
     };
 
-//kill
-	
-	const { data:pdata,config : configKill } = usePrepareContractWrite({
+
+const onKill = async( tokenId : any )=> {
+       await setSelectedPet(tokenId);
+	   const config =  await prepareWriteContract({
 		address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 		abi: nftAbi,
 		functionName: "kill",
-		args: [debouncedSelectedPet ,debouncedOwnPetId],
-		onError: (e) => console.log("ERROR PrepareContractWrite: ", e),
-		onSettled: (e) => {
-			console.log('Mutate', e)
-		  },
-		});
-		//console.log("PrepareContractWrite: ", pdata, configKill)
-		const {
-		  data: killData,
-		  write: setKillAsync,
-		  error:errorKill
-		} = useContractWrite(configKill);
+		args: [tokenId ,ownPetId]})
+	   const tx = await writeContract(config);
+	   if(tx){
 
-		
-
-		const { isLoading : isLoadingKill} = useWaitForTransaction({
-			hash: killData?.hash,
-			onSuccess(data) {
-			  const list = activity;
-			  list.push(` You Killed #${selectedPet} `)
-			  setActivity(list)
-			  fetchMyAPI();
-			},
-		  })
-
-const onKill = async( tokenId : string )=> {
-       await setSelectedPet(tokenId+"");
-	   await setKillAsync?.();
+		const list = activity;
+		list.push(` You Killed #${tokenId} `)
+		setActivity(list)
+		fetchMyAPI();
+	   }
     };
 
 	
@@ -211,7 +179,8 @@ const fetchMyAPI = async()=>{
           })
           
           Info[0].result.push(BigInt(pet));
-          setOwnPetId(pet);
+		  console.log("typeof",typeof pet)
+          setOwnPetId(pet+"");
           //console.log("ownedpet",Info[0].result)
           setOwnPet(Info[0].result);
   }
