@@ -2,9 +2,6 @@
 import { title } from "@/components/primitives";
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-	usePrepareContractWrite,
-	useContractWrite,
-	useWaitForTransaction,
 	useAccount,
 	useContractEvent,
   } from "wagmi";
@@ -12,10 +9,8 @@ import {
   import { readContracts , watchAccount  , writeContract ,prepareWriteContract} from '@wagmi/core'
   import {Card, CardBody , CardHeader , Divider} from "@nextui-org/react";
   import { nftAbi , tokenAbi } from '../../abi';
-  import { useDebounce } from './useDebounce'
   import {Image} from "@nextui-org/react";
   import useSWR from "swr";
-import { Console } from "console";
 
 
   const fetcher = async (...args: Parameters<typeof fetch>) => {
@@ -32,7 +27,6 @@ export default function Battle() {
 	const { address } = useAccount();
 	const [page, setPage] = React.useState(0);
 	const [ownPet, setOwnPet] = useState<any>(null)
-	const [ownPetId, setOwnPetId] = useState<any>('')
 	const [selectedPet, setSelectedPet] = useState<any>('')
 	const [activity, setActivity] = useState<any>([])
 	const unwatch = watchAccount((account) => {
@@ -47,7 +41,7 @@ export default function Battle() {
 	//   let petList = data?.data.filter((item:any) =>item.address !== address && item.address !== '0x0000000000000000000000000000000000000000') ;
 	let petList = data?.data.filter((item:any) =>item.address !== address && item.address !== '0x0000000000000000000000000000000000000000');
 	  
-	  console.log("petList",petList);
+	
 	  const loadingState = isLoading || data?.data.length === 0 ? "loading" : "idle";
 
 	  const rowsPerPage = 20;
@@ -56,8 +50,18 @@ export default function Battle() {
 		return data?.total ? Math.ceil(data.total / rowsPerPage) : 0;
 	  }, [data?.total, rowsPerPage]);
 	  
+	  const ownedPetId = React.useMemo(() => {
+		
+		const pet =  typeof window !== 'undefined' ? localStorage.getItem('pet')+"" : "";
+		console.log("ownedPet",pet)
+		
+			return pet;
+		
+		
 
+	  }, []);
 	  const renderCell = React.useCallback(async(data:any, columnKey:any ) => {
+		
 		const cellValue = data[columnKey];
 		const res : any = await readContracts({
 			contracts: [
@@ -106,7 +110,7 @@ export default function Battle() {
 			)
 		}
 		{
-		 ownPetId &&  pet[1] == 4   &&(
+		 ownedPetId &&  pet[1] == 4   &&(
 <Button isIconOnly size="sm" className="p-2" color="default" aria-label="Like" onPress={()=>onKill(data.tokenId)}>
 <Image
     radius={"none"}
@@ -126,12 +130,12 @@ src="/gotchi/Icon/skull2.png"
 
 	
 const onAttack = async ( tokenId : any )=> {
-	await setSelectedPet(tokenId);
+	
 	const config =  await prepareWriteContract({
 	 address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 	 abi: nftAbi,
 	 functionName: "attack",
-	 args: [ownPetId ,tokenId]})
+	 args: [BigInt(ownedPetId) ,tokenId]})
 	const tx = await writeContract(config);
 	if(tx){
 
@@ -149,7 +153,7 @@ const onKill = async( tokenId : any )=> {
 		address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 		abi: nftAbi,
 		functionName: "kill",
-		args: [tokenId ,ownPetId]})
+		args: [tokenId ,BigInt(ownedPetId)]})
 	   const tx = await writeContract(config);
 	   if(tx){
 
@@ -179,12 +183,11 @@ const fetchMyAPI = async()=>{
           })
           
           Info[0].result.push(BigInt(pet));
-		  console.log("typeof",typeof pet)
-          setOwnPetId(pet+"");
-          //console.log("ownedpet",Info[0].result)
+		  
           setOwnPet(Info[0].result);
   }
 } 
+
 useContractEvent({
 	address: `0x${process.env.NFT_ADDRESS?.slice(2)}`,
 	abi: nftAbi,
