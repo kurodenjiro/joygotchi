@@ -40,13 +40,18 @@ const { data: allowance, refetch } = useContractRead({
   });
 
   const {
-    data: writeContractResult,
+    data: approveResult,
     writeAsync: approveAsync,
     error:errorAllowance,
   } = useContractWrite(configAllowance);
 
   
-
+  const { isLoading : isLoadingApprove} = useWaitForTransaction({
+	hash: approveResult?.hash,
+		onSuccess(data) {
+			setIsApprove(true);
+		}
+  })
 	
 	const {
 		config,
@@ -66,6 +71,7 @@ const { data: allowance, refetch } = useContractRead({
 
 	  const { chain  } = useNetwork()
 	  const [isClient, setIsClient] = React.useState(true)
+	  const [isApprove, setIsApprove] = React.useState(false)
 	  const { chains , error : errorSwitchNetwork, isLoading : loadingSwingNetwork, pendingChainId, switchNetwork } =
 		useSwitchNetwork({
 			onMutate(args) {
@@ -81,6 +87,14 @@ const { data: allowance, refetch } = useContractRead({
 			  }
 		  })
 		React.useEffect(() => {
+			
+			if(allowance){
+				if(allowance >= BigInt(20000)){
+					
+					setIsApprove(true)
+				}
+			}
+
 			if(chain?.id == process.env.CHAIN_ID){
 			setIsClient(true);
 			}
@@ -94,25 +108,28 @@ const { data: allowance, refetch } = useContractRead({
 				<h1 className={title({ color: "violet" })}>Gotchi&nbsp;</h1>
 				<br />
 				<h1 className={title()}>
+				<div className="inline-block max-w-lg text-center justify-center">
 				<Image
       width={250}
       alt="joy gotchi"
       src="/gotchi/Animated/GIF_Pet2.gif"
-    />
+    />	
+				</div>
+	
 				</h1>
 				<h2 className={subtitle({ class: "mt-4" })}>
-				Meet your new digital friend!
+				Meet Your New Gotchi! 
 				</h2>
 			</div>
 
 {isClient ? (
-(allowance == BigInt(0)) ? (
+(!isApprove) ? (
 	<button type="button"   onClick={approveAsync} className="nes-btn w-52" >
 	Approval
 </button>
    ):(
 	 <button type="button"  disabled={!mint || isLoading} onClick={mint} className="nes-btn w-52" >
-	 Mint A Fens
+	 Mint A GotChi
  </button>
 	 
    )
@@ -174,14 +191,14 @@ const { data: allowance, refetch } = useContractRead({
 					href='https://faucet-testnet.viction.xyz/'
 					>
 					
-					Faucet Tomo Testnet
+					Faucet Vic Testnet
 				</Link> 
 				<Link
 					isExternal
 					className={buttonStyles({ variant: "bordered", radius: "full" })}
 					href="/faucet"
 				>
-					Faucet $ Joy token
+					Faucet $Joy token
 				</Link>
 			</div>
 
